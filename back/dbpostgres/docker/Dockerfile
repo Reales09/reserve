@@ -1,7 +1,7 @@
 # Etapa 1: build con Go
 FROM golang:1.23-alpine AS builder
 
-# Variables de compilación (solo para build)
+# Variables de compilación
 ENV CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=amd64
@@ -19,12 +19,12 @@ RUN go mod download
 COPY . .
 
 # Compilar la aplicación
-RUN go build -o central_reserve ./cmd/main.go
+RUN go build -o db_migrator ./cmd/main.go
 
 # Etapa 2: Imagen final minimalista
 FROM alpine:3.19
 
-# Solo variables no sensibles necesarias para runtime
+# Variables de entorno
 ENV TZ=America/Bogota
 
 # Crear usuario no root
@@ -33,12 +33,13 @@ RUN adduser -D -g '' appuser
 WORKDIR /app
 
 # Copiar binario desde build stage
-COPY --from=builder /app/central_reserve .
+COPY --from=builder /app/db_migrator .
 
-# Instalar certificados SSL y configurar zona horaria
+# Instalar certificados SSL, wget para healthcheck y configurar zona horaria
 RUN apk update && apk add --no-cache \
     ca-certificates \
-    tzdata && \
+    tzdata \
+    wget && \
     cp /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo "${TZ}" > /etc/timezone && \
     rm -rf /var/cache/apk/*
@@ -46,12 +47,5 @@ RUN apk update && apk add --no-cache \
 # Cambiar a usuario no root
 USER appuser
 
-# Exponer puerto
-EXPOSE 3050
-
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3050/health || exit 1
-
-# Ejecutar la app
-CMD ["./central_reserve"]
+# Ejecutar la aplicación de migración
+CMD ["./db_migrator"] 

@@ -40,11 +40,43 @@ Sigue estos pasos para poner en marcha el proyecto en tu máquina local:
     ```
 
 2.  **Configurar las variables de entorno:**
-    Copia el archivo de ejemplo y edítalo con tu configuración local (puertos, credenciales de la base de datos, etc.).
     ```bash
-    cp .env.example .env
-    nano .env
+    # Crear archivo .env basado en las variables requeridas
+    touch .env
     ```
+    
+    **⚠️ IMPORTANTE - Seguridad de Variables de Entorno:**
+    
+    Las siguientes variables son **OBLIGATORIAS** y contienen información sensible:
+    ```bash
+    # Configuración de la aplicación
+    APP_ENV=development
+    HTTP_PORT=3050
+    GRPC_PORT=9090
+    LOG_LEVEL=debug
+    
+    # 🔐 CRÍTICO: Usa un JWT secret fuerte en producción
+    JWT_SECRET=your-super-secret-jwt-key-here-change-this-in-production
+    
+    # 🗄️ Configuración de base de datos PostgreSQL
+    DB_HOST=localhost
+    DB_USER=your_db_user
+    DB_PASS=your_db_password
+    DB_PORT=5432
+    DB_NAME=central_reserve
+    DB_LOG_LEVEL=info
+    PGSSLMODE=disable
+    
+    # 📚 Configuración de Swagger
+    URL_BASE_SWAGGER=http://localhost:3050
+    ```
+    
+    **🛡️ Mejores Prácticas de Seguridad:**
+    - ❌ **NUNCA** subas el archivo `.env` al repositorio
+    - ❌ **NUNCA** hardcodees credenciales en el código
+    - ✅ Usa diferentes valores para dev/staging/prod
+    - ✅ Genera JWT secrets seguros: `openssl rand -base64 32`
+    - ✅ Usa gestores de secretos en producción (AWS Secrets Manager, HashiCorp Vault, etc.)
 
 3.  **Instalar dependencias:**
     ```bash
@@ -63,6 +95,82 @@ Sigue estos pasos para poner en marcha el proyecto en tu máquina local:
     go run ./cmd/main.go
     ```
     ¡El servidor debería estar corriendo! Los logs de inicio te mostrarán las URLs disponibles.
+
+---
+
+## 🐳 Despliegue con Docker
+
+El proyecto incluye un Dockerfile multi-stage optimizado para seguridad:
+
+```bash
+# Construir la imagen
+docker build -f docker/Dockerfile -t central-reserve .
+
+# Ejecutar con variables de entorno
+docker run --env-file .env -p 3050:3050 central-reserve
+```
+
+**🔒 Características de Seguridad del Dockerfile:**
+- ✅ Usuario no-root para ejecución
+- ✅ Imagen minimalista (Alpine)
+- ✅ Variables sensibles NO hardcodeadas
+- ✅ Certificados SSL incluidos
+- ✅ Healthcheck configurado
+
+---
+
+## ☁️ Despliegue a AWS ECR
+
+La imagen está disponible públicamente en AWS ECR:
+
+```bash
+# 🌐 Imagen pública disponible
+docker pull public.ecr.aws/d3a6d4r1/cam/reserve:latest
+
+# 🚀 Ejecutar desde ECR
+docker run --env-file .env -p 3050:3050 public.ecr.aws/d3a6d4r1/cam/reserve:latest
+```
+
+### 📦 **Despliegue Automatizado**
+
+Para desplegar nuevas versiones a ECR:
+
+```bash
+# Desplegar versión latest
+./scripts/deploy.sh
+
+# Desplegar versión específica
+./scripts/deploy.sh v1.0.1
+
+# Desplegar versión de desarrollo
+./scripts/deploy.sh dev
+```
+
+### 🔧 **Configuración Inicial de ECR**
+
+Si necesitas configurar ECR desde cero:
+
+```bash
+# 1. Configurar permisos IAM para ECR público
+# Agregar política: AmazonElasticContainerRegistryPublicFullAccess
+# O crear política personalizada con:
+#   - ecr-public:*
+#   - sts:GetServiceBearerToken
+
+# 2. Hacer login
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+
+# 3. Usar el script de despliegue
+./scripts/deploy.sh
+```
+
+### 📋 **Versiones Disponibles**
+
+- `latest`: Última versión estable
+- `v1.0.0`: Primera versión de producción
+- `YYYYMMDD_HHMMSS`: Versiones con timestamp automático
+
+**🌐 Galería ECR:** https://gallery.ecr.aws/d3a6d4r1/cam/reserve
 
 ---
 

@@ -2,11 +2,13 @@
 import { ReservaRepository } from '../../domain/repositories/ReservaRepository.js';
 import { Reserva } from '../../domain/entities/Reserva.js';
 import { HttpClient } from '../api/HttpClient.js';
+import { config } from '../../config/env.js';
 
 export class ApiReservaRepository extends ReservaRepository {
   constructor() {
     super();
-    this.httpClient = new HttpClient('http://localhost:3050');
+    this.httpClient = new HttpClient(config.API_BASE_URL);
+    console.log('🔥 ApiReservaRepository initialized with base URL:', config.API_BASE_URL);
   }
 
   async getReservas(filters = {}) {
@@ -140,7 +142,7 @@ export class ApiReservaRepository extends ReservaRepository {
       }
       
       console.log('🔥 ID procesado:', reservaId);
-      console.log('🔥 URL que se va a llamar:', `http://localhost:3050/api/v1/reserves/${reservaId}/cancel`);
+      console.log('🔥 URL que se va a llamar:', `${config.API_BASE_URL}/api/v1/reserves/${reservaId}/cancel`);
       
       const response = await this.httpClient.patch(`/api/v1/reserves/${reservaId}/cancel`);
       

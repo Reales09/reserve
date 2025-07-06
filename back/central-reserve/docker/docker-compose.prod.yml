@@ -1,0 +1,110 @@
+version: '3.9'
+
+services:
+  central_reserve:
+    image: public.ecr.aws/d3a6d4r1/cam/reserve:latest
+    container_name: central_reserve_prod
+    env_file:
+      - ../.env
+    ports:
+      - "3050:3050"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3050/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app-network
+    depends_on:
+      - postgres
+      - redis
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_prod
+    environment:
+      POSTGRES_DB: central_reserve
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_prod
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - app-network
+    command: redis-server --appendonly yes
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  nats:
+    image: nats:alpine
+    container_name: nats_prod
+    ports:
+      - '8222:8222'
+      - '6222:6222'
+      - '4222:4222'
+    command: ["-m", "8222", "-js"]
+    restart: unless-stopped
+    networks:
+      - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  dashboard:
+    image: mdawar/nats-dashboard
+    container_name: nats_dashboard_prod
+    environment:
+      REVERSE_PROXY_UPSTREAM: 'nats:8222'
+    ports:
+      - "8111:80"
+    restart: unless-stopped
+    depends_on:
+      - nats
+    networks:
+      - app-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local 
