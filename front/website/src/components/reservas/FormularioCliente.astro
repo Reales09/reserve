@@ -140,8 +140,9 @@ const { mostrar } = Astro.props;
         console.log("✅ Enviando al backend:", datosReserva);
 
         try {
+          // Usamos una ruta relativa. Nginx se encargará de redirigir esto al backend.
           const response = await fetch(
-            "http://localhost:3050/api/v1/reserves",
+            `/api/v1/reserves`, 
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -149,7 +150,12 @@ const { mostrar } = Astro.props;
             }
           );
 
-          if (!response.ok) throw new Error("Error al crear la reserva");
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: 'Error sin detalles.' }));
+            console.error("Detalles del error:", errorData);
+            throw new Error(`Error ${response.status}: ${errorData.message || 'No se pudo crear la reserva'}`);
+          }
+          
           alert("✅ Reserva registrada exitosamente");
           cerrarModal();
         } catch (err) {

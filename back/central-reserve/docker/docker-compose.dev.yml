@@ -1,0 +1,124 @@
+version: '3.9'
+
+services:
+  # Backend API
+  central-reserve:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: central-reserve-dev
+    env_file:
+      - ../.env
+    ports:
+      - "3050:3050"
+    depends_on:
+      - postgres
+      - redis
+      - nats
+    networks:
+      - app-network
+    volumes:
+      - ../logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3050/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-dev
+    environment:
+      POSTGRES_DB: central_reserve
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASS:-password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis para cache
+  redis:
+    image: redis:7-alpine
+    container_name: redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NATS para mensajería
+  nats:
+    image: nats:alpine
+    container_name: nats-dev
+    ports:
+      - '8222:8222'
+      - '6222:6222'
+      - '4222:4222'
+    command: ["-m", "8222", "-js"]
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Dashboard NATS (opcional)
+  nats-dashboard:
+    image: mdawar/nats-dashboard
+    container_name: nats-dashboard-dev
+    environment:
+      REVERSE_PROXY_UPSTREAM: 'nats:8222'
+    ports:
+      - "8111:80"
+    depends_on:
+      - nats
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # Adminer para gestionar PostgreSQL (opcional)
+  adminer:
+    image: adminer:latest
+    container_name: adminer-dev
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge 

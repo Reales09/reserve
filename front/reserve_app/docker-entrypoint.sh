@@ -1,20 +1,22 @@
 #!/bin/bash
 
-# Función para reemplazar variables de entorno en archivos JavaScript
-replace_env_vars() {
-    local file="$1"
-    local temp_file="${file}.tmp"
-    
-    # Reemplazar REACT_APP_API_BASE_URL
-    sed "s|REACT_APP_API_BASE_URL_PLACEHOLDER|${REACT_APP_API_BASE_URL:-http://localhost:3050}|g" "$file" > "$temp_file"
-    mv "$temp_file" "$file"
-}
+echo "Variables de entorno disponibles:"
+echo "REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL:-http://localhost:3050}"
 
-# Buscar y reemplazar variables de entorno en archivos JavaScript
-find /usr/share/nginx/html -name "*.js" -type f -exec bash -c 'replace_env_vars "$0"' {} \;
+# Reemplazar en todos los archivos JS
+for file in $(find /usr/share/nginx/html -name "*.js" -type f); do
+  sed -i "s|REACT_APP_API_BASE_URL_PLACEHOLDER|${REACT_APP_API_BASE_URL:-http://localhost:3050}|g" "$file"
+done
 
-# Función para reemplazar variables de entorno
-export -f replace_env_vars
+# Reemplazar en todos los archivos HTML
+for file in $(find /usr/share/nginx/html -name "*.html" -type f); do
+  sed -i "s|REACT_APP_API_BASE_URL_PLACEHOLDER|${REACT_APP_API_BASE_URL:-http://localhost:3050}|g" "$file"
+done
+
+# Reemplazar en todos los archivos JSON
+for file in $(find /usr/share/nginx/html -name "*.json" -type f); do
+  sed -i "s|REACT_APP_API_BASE_URL_PLACEHOLDER|${REACT_APP_API_BASE_URL:-http://localhost:3050}|g" "$file"
+done
 
 echo "Variables de entorno configuradas:"
 echo "REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL:-http://localhost:3050}"

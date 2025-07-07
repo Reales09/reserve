@@ -19,6 +19,7 @@ type IHolaMundo interface {
 	UpdateTable(ctx context.Context, id uint, table Table) (string, error)
 	DeleteTable(ctx context.Context, id uint) (string, error)
 	GetClientByDni(ctx context.Context, dni uint) (*Client, error)
+	GetClientByEmailAndRestaurant(ctx context.Context, email string, restaurantID uint) (*Client, error)
 	CreateReservationStatusHistory(ctx context.Context, history ReservationStatusHistory) error
 	GetLatestReservationByClient(ctx context.Context, clientID uint) (*Reservation, error)
 	GetReserves(ctx context.Context, statusID *uint, clientID *uint, tableID *uint, startDate *time.Time, endDate *time.Time) ([]ReserveDetailDTO, error)
@@ -26,4 +27,9 @@ type IHolaMundo interface {
 	CancelReservation(ctx context.Context, id uint, reason string) (string, error)
 	UpdateReservation(ctx context.Context, id uint, tableID *uint, startAt *time.Time, endAt *time.Time, numberOfGuests *int) (string, error)
 	GetReservationStatuses(ctx context.Context) ([]ReservationStatus, error)
+}
+
+type IEmailService interface {
+	SendReservationConfirmation(ctx context.Context, email, name string, reservation Reservation) error
+	SendReservationCancellation(ctx context.Context, email, name string, reservation Reservation) error
 }

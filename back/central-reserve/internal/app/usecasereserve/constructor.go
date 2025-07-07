@@ -17,13 +17,15 @@ type IUseCaseReserve interface {
 }
 
 type ReserveUseCase struct {
-	repository domain.IHolaMundo
-	log        log.ILogger
+	repository   domain.IHolaMundo
+	emailService domain.IEmailService
+	log          log.ILogger
 }
 
-func NewReserveUseCase(repository domain.IHolaMundo, log log.ILogger) IUseCaseReserve {
+func NewReserveUseCase(repository domain.IHolaMundo, emailService domain.IEmailService, log log.ILogger) IUseCaseReserve {
 	return &ReserveUseCase{
-		repository: repository,
-		log:        log,
+		repository:   repository,
+		emailService: emailService,
+		log:          log,
 	}
 }

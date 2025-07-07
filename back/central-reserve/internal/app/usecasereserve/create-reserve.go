@@ -7,30 +7,37 @@ import (
 )
 
 func (u *ReserveUseCase) CreateReserve(ctx context.Context, req domain.Reservation, name, email, phone string, dni uint) (string, error) {
-	// 1. Buscar cliente por DNI
-	client, err := u.repository.GetClientByDni(ctx, dni)
+	// 1. Buscar cliente por email y restaurant_id (constraint único)
+	client, err := u.repository.GetClientByEmailAndRestaurant(ctx, email, req.RestaurantID)
 	var clientID uint
 	if err == nil && client != nil {
+		// Cliente ya existe, usar este cliente
 		clientID = client.ID
 	} else {
-		// Crear cliente si no existe
-		newClient := domain.Client{
-			Name:         name,
-			Email:        email,
-			Phone:        phone,
-			Dni:          dni,
-			RestaurantID: req.RestaurantID,
-		}
-		_, err := u.repository.CreateClient(ctx, newClient)
-		if err != nil {
-			return "", errors.New("No se pudo crear el cliente")
-		}
-		// Buscar el cliente recién creado para obtener el ID
+		// Buscar cliente por DNI como fallback
 		client, err = u.repository.GetClientByDni(ctx, dni)
-		if err != nil || client == nil {
-			return "", errors.New("No se pudo obtener el cliente recién creado")
+		if err == nil && client != nil {
+			clientID = client.ID
+		} else {
+			// Crear cliente si no existe
+			newClient := domain.Client{
+				Name:         name,
+				Email:        email,
+				Phone:        phone,
+				Dni:          dni,
+				RestaurantID: req.RestaurantID,
+			}
+			_, err := u.repository.CreateClient(ctx, newClient)
+			if err != nil {
+				return "", errors.New("No se pudo crear el cliente")
+			}
+			// Buscar el cliente recién creado para obtener el ID
+			client, err = u.repository.GetClientByDni(ctx, dni)
+			if err != nil || client == nil {
+				return "", errors.New("No se pudo obtener el cliente recién creado")
+			}
+			clientID = client.ID
 		}
-		clientID = client.ID
 	}
 
 	// 2. Crear la reserva (sin mesa, statusId=1)
@@ -62,6 +69,15 @@ func (u *ReserveUseCase) CreateReserve(ctx context.Context, req domain.Reservati
 		StatusID:      1,
 	}
 	_ = u.repository.CreateReservationStatusHistory(ctx, history)
+
+	// 4. Enviar email de confirmación (en background para no bloquear la respuesta)
+	go func() {
+		if err := u.emailService.SendReservationConfirmation(ctx, email, name, reservation); err != nil {
+			u.log.Error(ctx).Err(err).Str("email", email).Msg("Error enviando email de confirmación")
+		} else {
+			u.log.Info(ctx).Str("email", email).Msg("Email de confirmación enviado exitosamente")
+		}
+	}()
 
 	return response, nil
 }

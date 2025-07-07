@@ -1,13 +1,20 @@
 ---
+import { ViewTransitions } from "astro:transitions";
 import "../styles/global.css";
 import Navbar from "../components/layout/Navbar.astro";
 import Footer from "../components/layout/Footer.astro";
+
+interface Props {
+  title?: string;
+}
+
+const { title = "Trattoria La Bella" } = Astro.props;
 ---
 
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>Trattoria La Bella</title>
+    <title>{title}</title>
     <!-- ✅ Google Fonts: Cinzel con pesos delgados -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,6 +34,7 @@ import Footer from "../components/layout/Footer.astro";
       rel="stylesheet"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <ViewTransitions />
   </head>
   <body
     class="bg-[#fefcf5] text-gray-900 bg-no-repeat bg-right-top bg-[length:350px] opacity-[97%]"

@@ -338,7 +338,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Este endpoint permite crear una nueva reserva. Si el cliente no existe, se crea automáticamente.",
+                "description": "Este endpoint permite crear una nueva reserva para una mesa en un restaurante.",
                 "consumes": [
                     "application/json"
                 ],

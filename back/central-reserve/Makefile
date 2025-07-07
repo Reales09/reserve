@@ -1,54 +1,110 @@
-# Makefile para gestionar tareas comunes del proyecto
+# Makefile para Central Reserve Backend
+# Uso: make [comando]
 
-.PHONY: docs clean
+.PHONY: help build run test clean docker-build docker-dev docker-prod docker-stop docker-logs
 
-# ==============================================================================
-# DOCUMENTACIÓN gRPC
-# ------------------------------------------------------------------------------
-# Genera la documentación HTML estática para los servicios gRPC.
-#
-# Este comando realiza dos pasos:
-# 1. Usa `protoc-gen-doc` para generar un `index.html` base a partir de los
-#    archivos .proto.
-# 2. Usa `sed` para inyectar una referencia a nuestra hoja de estilos
-#    personalizada (`custom-styles.css`) dentro del <head> del HTML generado.
-#    Esto nos permite mantener los estilos separados y persistentes.
-#
-# Uso:
-#   make docs
-#
-docs:
-	@echo "1. Generando HTML base desde .proto..."
-	@protoc -I internal/infra/primary/grpc/proto \
-	  --doc_out=internal/infra/primary/grpc/docs \
-	  --doc_opt=html,index.html \
-	  internal/infra/primary/grpc/proto/holamundo/holamundo.proto
+# Variables
+APP_NAME=central_reserve
+DOCKER_IMAGE=central-reserve
+DOCKER_TAG=latest
 
-	@echo "2. Eliminando estilos por defecto y enlazando CSS personalizado..."
-	@sed -i -e '/<style>/,/<\/style>/d' internal/infra/primary/grpc/docs/index.html
-	@sed -i -e '/<head>/a \ \ \ \ <link rel="stylesheet" type="text/css" href="custom-styles.css"/>' internal/infra/primary/grpc/docs/index.html
+# Comandos principales
+help: ## Mostrar esta ayuda
+	@echo "Comandos disponibles:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-	@echo "3. Personalizando contenido HTML (títulos, textos, iconos)..."
-	@sed -i 's|<title>Protocol Documentation</title>|<title>Documentación API gRPC</title>|' internal/infra/primary/grpc/docs/index.html
-	@sed -i 's|<h1 id="title">Protocol Documentation</h1>|<h1 id="title">📜 Documentación de API gRPC</h1><p style="text-align: center; font-size: 1.1em; color: #b0b0b0; margin: 2em 0;">Esta es la documentación autogenerada para los servicios gRPC de la aplicación. <br>Aquí encontrarás una lista completa de todos los servicios, métodos y estructuras de mensajes definidos en los archivos <code>.proto</code>.</p>|' internal/infra/primary/grpc/docs/index.html
-	@sed -i 's|<h2>Table of Contents</h2>|<h2>📋 Tabla de Contenido</h2>|' internal/infra/primary/grpc/docs/index.html
-	@sed -i 's|<h2 id="scalar-value-types">Scalar Value Types</h2>|<h2 id="scalar-value-types">🔢 Tipos de Valores Escalares</h2>|' internal/infra/primary/grpc/docs/index.html
-	@sed -i 's|<a href="#title">Top</a>|<a href="#title">Arriba</a>|g' internal/infra/primary/grpc/docs/index.html
+# Desarrollo local
+build: ## Compilar la aplicación
+	go build -o bin/$(APP_NAME) ./cmd/main.go
 
-	@echo "4. Añadiendo enlaces de descarga para los archivos .proto..."
-	@sed -i 's|\(<h2 id="holamundo/holamundo.proto">.*</h2>\)|\1<a href="/proto-files/holamundo/holamundo.proto" download style="font-size: 0.6em; margin-left: 2em; text-decoration: none;">📥 Descargar .proto</a>|' internal/infra/primary/grpc/docs/index.html
-	@echo "✅ Documentación generada y personalizada."
+run: ## Ejecutar la aplicación localmente
+	go run ./cmd/main.go
 
-# ==============================================================================
-# LIMPIEZA
-# ------------------------------------------------------------------------------
-# Elimina los archivos generados por la compilación y la documentación.
-#
-# Uso:
-#   make clean
-#
-clean:
-	@echo "Limpiando archivos generados..."
-	@rm -f server
-	@rm -f internal/infra/primary/grpc/docs/index.html
-	@echo "✅ Limpieza completada." 
+test: ## Ejecutar tests
+	go test ./...
+
+clean: ## Limpiar archivos generados
+	rm -rf bin/
+	go clean
+
+# Docker
+docker-build: ## Construir imagen Docker
+	docker build -f docker/Dockerfile -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+
+docker-dev: ## Levantar entorno de desarrollo con Docker
+	@echo "🚀 Levantando entorno de desarrollo..."
+	cd docker && docker-compose -f docker-compose.dev.yml up -d
+	@echo "✅ Entorno listo!"
+	@echo "📋 Servicios disponibles:"
+	@echo "  - API: http://localhost:3050"
+	@echo "  - Swagger: http://localhost:3050/docs"
+	@echo "  - NATS Dashboard: http://localhost:8111"
+	@echo "  - Adminer: http://localhost:8080"
+
+docker-prod: ## Levantar entorno de producción con Docker
+	@echo "🚀 Levantando entorno de producción..."
+	cd docker && docker-compose -f docker-compose.prod.yml up -d
+	@echo "✅ Entorno de producción listo!"
+
+docker-stop: ## Detener contenedores Docker
+	@echo "🛑 Deteniendo contenedores..."
+	cd docker && docker-compose -f docker-compose.dev.yml down
+	cd docker && docker-compose -f docker-compose.prod.yml down
+
+docker-logs: ## Ver logs de la aplicación
+	cd docker && docker-compose -f docker-compose.dev.yml logs -f central_reserve
+
+docker-logs-all: ## Ver logs de todos los servicios
+	cd docker && docker-compose -f docker-compose.dev.yml logs -f
+
+# Scripts automatizados
+build-and-run: ## Build y ejecutar con script automatizado
+	./scripts/build-docker.sh dev
+
+build-prod: ## Build para producción
+	./scripts/build-docker.sh prod
+
+# Utilidades
+deps: ## Instalar dependencias
+	go mod tidy
+	go mod download
+
+docs: ## Generar documentación
+	swag init -g cmd/main.go -o internal/infra/primary/http2/docs
+
+# Base de datos
+db-migrate: ## Ejecutar migraciones de base de datos
+	@echo "📊 Ejecutando migraciones..."
+	# Aquí puedes agregar comandos para migraciones si las tienes
+
+db-reset: ## Resetear base de datos (¡CUIDADO!)
+	@echo "⚠️  Reseteando base de datos..."
+	cd docker && docker-compose -f docker-compose.dev.yml down -v
+	cd docker && docker-compose -f docker-compose.dev.yml up -d postgres
+
+# Email testing
+test-email: ## Probar envío de emails
+	go run examples/email-starttls-test.go
+
+# Health check
+health: ## Verificar salud de los servicios
+	@echo "🏥 Verificando salud de servicios..."
+	@curl -f http://localhost:3050/health || echo "❌ API no responde"
+	@curl -f http://localhost:8111 || echo "❌ NATS Dashboard no responde"
+
+# Limpieza completa
+clean-all: ## Limpieza completa (Docker + binarios)
+	@echo "🧹 Limpieza completa..."
+	make clean
+	make docker-stop
+	docker system prune -f
+	docker volume prune -f
+
+# Información del sistema
+info: ## Mostrar información del sistema
+	@echo "📊 Información del sistema:"
+	@echo "  - Go version: $(shell go version)"
+	@echo "  - Docker version: $(shell docker --version)"
+	@echo "  - Docker Compose version: $(shell docker-compose --version)"
+	@echo "  - Contenedores activos:"
+	@docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "(central_reserve|postgres|redis|nats)" || echo "  No hay contenedores activos" 

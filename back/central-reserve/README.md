@@ -9,6 +9,7 @@ Este repositorio sirve como una plantilla robusta y escalable para iniciar proye
 - **🌐 Servidor HTTP**: Implementado con [Gin](https://gin-gonic.com/), uno de los frameworks más rápidos y populares de Go.
 - **🔌 Servidor gRPC**: Listo para comunicación de alto rendimiento entre microservicios.
 - **🗄️ Base de Datos**: Configurado para [PostgreSQL](https://www.postgresql.org/), con un repositorio listo para usar.
+- **📧 Sistema de Email**: Notificaciones automáticas por email para confirmaciones y cancelaciones de reservas.
 - **📄 Documentación de API**:
     - **OpenAPI (Swagger)** para el servidor HTTP, totalmente interactiva.
     - **HTML Estático** para los servicios gRPC, con estilos personalizados.
@@ -69,6 +70,13 @@ Sigue estos pasos para poner en marcha el proyecto en tu máquina local:
     
     # 📚 Configuración de Swagger
     URL_BASE_SWAGGER=http://localhost:3050
+    
+    # 📧 Configuración de Email (Opcional)
+    SMTP_HOST=smtp.gmail.com
+    SMTP_PORT=587
+    SMTP_USER=tu-email@gmail.com
+    SMTP_PASS=tu-contraseña-de-aplicación
+    FROM_EMAIL=reservas@trattorialabella.com
     ```
     
     **🛡️ Mejores Prácticas de Seguridad:**
@@ -77,6 +85,7 @@ Sigue estos pasos para poner en marcha el proyecto en tu máquina local:
     - ✅ Usa diferentes valores para dev/staging/prod
     - ✅ Genera JWT secrets seguros: `openssl rand -base64 32`
     - ✅ Usa gestores de secretos en producción (AWS Secrets Manager, HashiCorp Vault, etc.)
+    - ✅ Para Gmail, usa contraseñas de aplicación en lugar de tu contraseña normal
 
 3.  **Instalar dependencias:**
     ```bash
@@ -100,22 +109,39 @@ Sigue estos pasos para poner en marcha el proyecto en tu máquina local:
 
 ## 🐳 Despliegue con Docker
 
-El proyecto incluye un Dockerfile multi-stage optimizado para seguridad:
+### 🚀 Inicio Rápido con Docker
 
 ```bash
-# Construir la imagen
-docker build -f docker/Dockerfile -t central-reserve .
+# Opción 1: Script automatizado (Recomendado)
+./scripts/build-docker.sh dev
 
-# Ejecutar con variables de entorno
-docker run --env-file .env -p 3050:3050 central-reserve
+# Opción 2: Makefile
+make docker-dev
+
+# Opción 3: Docker Compose directo
+cd docker && docker-compose -f docker-compose.dev.yml up -d
 ```
 
-**🔒 Características de Seguridad del Dockerfile:**
+### 📋 Servicios Incluidos
+- **API Backend**: http://localhost:3050
+- **Swagger Docs**: http://localhost:3050/docs
+- **PostgreSQL**: localhost:5432
+- **Redis**: localhost:6379
+- **NATS**: localhost:4222
+- **NATS Dashboard**: http://localhost:8111
+- **Adminer (DB)**: http://localhost:8080
+
+### 🔒 Características de Seguridad
 - ✅ Usuario no-root para ejecución
 - ✅ Imagen minimalista (Alpine)
 - ✅ Variables sensibles NO hardcodeadas
 - ✅ Certificados SSL incluidos
 - ✅ Healthcheck configurado
+- ✅ Red aislada para servicios
+- ✅ Volúmenes persistentes para datos
+
+### 📖 Documentación Completa
+Para más detalles sobre Docker, consulta: [README-DOCKER.md](README-DOCKER.md)
 
 ---
 
@@ -194,3 +220,25 @@ Una vez que el servidor esté corriendo, puedes acceder a la documentación en l
     -   Visita `http://localhost:[PUERTO_HTTP]/grpc-docs`
 
 *(Reemplaza `[PUERTO_HTTP]` por el puerto que configuraste en tu archivo `.env`)*
+
+---
+
+## 📧 Sistema de Email
+
+El proyecto incluye un sistema completo de notificaciones por email que envía automáticamente:
+
+- ✅ **Confirmaciones de reserva** cuando se crea una nueva reserva
+- ✅ **Cancelaciones de reserva** cuando se cancela una reserva existente
+
+### Características del Sistema de Email:
+- **Envío asíncrono**: No bloquea la respuesta de la API
+- **Templates HTML profesionales**: Diseño responsivo con branding del restaurante
+- **Soporte múltiples proveedores**: Gmail, Outlook, SendGrid, etc.
+- **Logging detallado**: Seguimiento completo de envíos y errores
+- **Configuración flexible**: Variables de entorno para diferentes entornos
+
+### Documentación Completa:
+Para más detalles sobre la configuración y uso del sistema de email, consulta:
+- 📖 [README-EMAIL.md](README-EMAIL.md) - Guía completa del sistema de email
+- 📋 [env-template-email.txt](env-template-email.txt) - Ejemplos de configuración
+- 🧪 [examples/email-test.go](examples/email-test.go) - Ejemplo de uso

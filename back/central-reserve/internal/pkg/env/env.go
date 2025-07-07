@@ -84,6 +84,15 @@ type Config struct {
 	// S3Region   string `env:"S3_REGION,required"`
 	// S3Key      string `env:"S3_KEY,required"`
 	// S3Secret   string `env:"S3_SECRET,required"`
+
+	// SMTP/Email
+	SMTPHost        string `env:"SMTP_HOST"`
+	SMTPPort        string `env:"SMTP_PORT"`
+	SMTPUser        string `env:"SMTP_USER"`
+	SMTPPass        string `env:"SMTP_PASS"`
+	FromEmail       string `env:"FROM_EMAIL"`
+	SMTPUseSTARTTLS string `env:"SMTP_USE_STARTTLS"`
+	SMTPUseTLS      string `env:"SMTP_USE_TLS"`
 }
 
 func splitTag(tag string) []string {

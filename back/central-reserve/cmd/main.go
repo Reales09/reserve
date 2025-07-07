@@ -22,7 +22,7 @@ package main
 
 import (
 	"context"
-
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -34,6 +34,8 @@ func main() {
 	ctx := context.Background()
 	services, err := server.InitServer(ctx)
 	if err != nil {
+		// Imprimir el error directamente para debug
+		fmt.Printf("ERROR FATAL: %v\n", err)
 		if services != nil && services.Logger != nil {
 			services.Logger.Error(ctx).Err(err).Msg("No se pudo inicializar el servidor")
 		}

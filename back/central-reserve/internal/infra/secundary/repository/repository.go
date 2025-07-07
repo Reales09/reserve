@@ -59,6 +59,15 @@ func (r Repository) GetClientByDni(ctx context.Context, dni uint) (*domain.Clien
 	return &client, nil
 }
 
+func (r Repository) GetClientByEmailAndRestaurant(ctx context.Context, email string, restaurantID uint) (*domain.Client, error) {
+	var client domain.Client
+	if err := r.database.Conn(ctx).Table("client").Where("email = ? AND restaurant_id = ?", email, restaurantID).First(&client).Error; err != nil {
+		r.logger.Error().Msg("Error al obtener cliente por email y restaurant")
+		return nil, err
+	}
+	return &client, nil
+}
+
 func (r Repository) CreateClient(ctx context.Context, client domain.Client) (string, error) {
 	if err := r.database.Conn(ctx).Table("client").Create(&client).Error; err != nil {
 		r.logger.Error().Msg("Error al crear cliente")
@@ -183,7 +192,20 @@ func (r Repository) DeleteTable(ctx context.Context, id uint) (string, error) {
 }
 
 func (r Repository) CreateReservationStatusHistory(ctx context.Context, history domain.ReservationStatusHistory) error {
-	if err := r.database.Conn(ctx).Table("reservation_status_history").Create(&history).Error; err != nil {
+	// Crear un struct que solo tenga los campos que existen en la tabla
+	type dbReservationStatusHistory struct {
+		ReservationID   uint  `gorm:"column:reservation_id"`
+		StatusID        uint  `gorm:"column:status_id"`
+		ChangedByUserID *uint `gorm:"column:changed_by_user_id"`
+	}
+
+	dbHistory := dbReservationStatusHistory{
+		ReservationID:   history.ReservationID,
+		StatusID:        history.StatusID,
+		ChangedByUserID: history.ChangedByUserID,
+	}
+
+	if err := r.database.Conn(ctx).Table("reservation_status_history").Create(&dbHistory).Error; err != nil {
 		r.logger.Error().Msg("Error al crear historial de status de reserva")
 		return err
 	}

@@ -9,6 +9,7 @@ import (
 	"central_reserve/internal/infra/primary/http2/handlers/reservehandler"
 	"central_reserve/internal/infra/primary/http2/handlers/tablehandler"
 	"central_reserve/internal/infra/primary/queue/nats"
+	"central_reserve/internal/infra/secundary/email"
 	"central_reserve/internal/infra/secundary/repository"
 	"central_reserve/internal/infra/secundary/repository/db"
 	"central_reserve/internal/infra/secundary/storage/s3"
@@ -40,7 +41,7 @@ func InitServer(ctx context.Context) (*AppServices, error) {
 		return nil, err
 	}
 
-	handlers := setupDependencies(database, logger)
+	handlers := setupDependencies(database, logger, environment)
 
 	httpServer, err := startHttpServer(ctx, logger, handlers, environment)
 	if err != nil {
@@ -59,14 +60,17 @@ func InitServer(ctx context.Context) (*AppServices, error) {
 	return services, nil
 }
 
-func setupDependencies(database db.IDatabase, logger log.ILogger) *http2.Handlers {
+func setupDependencies(database db.IDatabase, logger log.ILogger, environment env.IConfig) *http2.Handlers {
 	// Repository compartido
 	repo := repository.New(database, logger)
+
+	// Servicios
+	emailService := email.New(environment, logger)
 
 	// Casos de uso por dominio
 	clientUseCase := usecaseclient.NewClientUseCase(repo, logger)
 	tableUseCase := usecasetables.NewTableUseCase(repo, logger)
-	reserveUseCase := usecasereserve.NewReserveUseCase(repo, logger)
+	reserveUseCase := usecasereserve.NewReserveUseCase(repo, emailService, logger)
 
 	// Handlers por dominio
 	clientHandler := clienthandler.New(clientUseCase, logger)

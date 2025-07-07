@@ -1,0 +1,65 @@
+# Archivos de desarrollo
+.git
+.gitignore
+README.md
+README-EMAIL.md
+env-template-email.txt
+*.md
+
+# Binarios y archivos compilados
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Archivos de test
+*_test.go
+test/
+tests/
+
+# Logs
+*.log
+logs/
+
+# Archivos temporales
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Scripts de desarrollo
+scripts/
+examples/
+
+# Archivos de configuración local
+.env.local
+.env.development
+.env.test
+
+# Documentación generada
+# internal/infra/primary/http2/docs/
+
+# Archivos de migración (si los tienes separados)
+migrations/
+
+# Archivos de backup
+*.bak
+*.backup
+
+# Archivos de cache
+.cache/
+*.cache 
