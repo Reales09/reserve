@@ -146,14 +146,11 @@ const { mostrar } = Astro.props;
 
         try {
           // Usamos una ruta relativa. Nginx se encargará de redirigir esto al backend.
-          const response = await fetch(
-            `http://localhost:3050/api/v1/reserves`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(datosReserva),
-            }
-          );
+          const response = await fetch("/api/v1/reserves", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(datosReserva),
+          });
 
           if (!response.ok) {
             const errorData = await response
