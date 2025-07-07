@@ -1,0 +1,120 @@
+---
+// HeroCarrusel.astro
+const images = [
+  "images/hero1.jpeg",
+  "images/hero2.jpeg",
+  "images/hero3.jpeg",
+  "images/hero4.jpeg",
+];
+---
+
+<section
+  class="min-h-[60vh] bg-[#e9d8a6] text-[#4e563f] flex items-center justify-center px-4 md:px-16 py-12 font-serif"
+>
+  <div
+    class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center max-w-7xl w-full"
+  >
+    <!-- Logo -->
+    <div class="flex justify-center md:justify-start">
+      <img
+        src="/images/trattoria-la-bella-main-logo-sec.png"
+        alt="Logo Trattoria La Bella"
+        class="max-h-52 w-auto md:max-h-60 object-contain animate-fade-in"
+      />
+    </div>
+
+    <!-- Frase llamativa -->
+    <div class="text-center md:text-left px-2 md:px-0 animate-fade-in">
+      <h2
+        class="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 leading-snug md:leading-tight"
+      >
+        "Pasión por cada plato, tradición en cada bocado"
+      </h2>
+      <p
+        class="text-sm sm:text-base md:text-xl text-[#333] max-w-xl mx-auto md:mx-0"
+      >
+        Inspirados en la auténtica gastronomía italiana, en Trattoria La Bella
+        combinamos ingredientes frescos, recetas tradicionales y pasión por el
+        sabor para ofrecerte una experiencia culinaria única.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- En tu layout base o donde renderices el componente -->
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer
+></script>
+
+<div class="max-w-9xl mx-auto px-8 md:px-10 text-center py-10">
+  <h2 class="text-2xl md:text-3xl font-semibold text-[#4e563f] mb-8">
+    Una probadita de nuestros platos
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <img
+      src="https://images-cam93.s3.us-east-1.amazonaws.com/pasta_carbonara.JPG"
+      alt="Pasta carbonara"
+      class="w-full h-100 object-cover rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
+    />
+    <img
+      src="https://images-cam93.s3.us-east-1.amazonaws.com/pasta_calamar.JPG"
+      alt="Pasta con calamar"
+      class="w-full h-100 object-cover rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
+    />
+    <img
+      src="https://images-cam93.s3.us-east-1.amazonaws.com/pasta.JPG"
+      alt="Pasta al pomodoro"
+      class="w-full h-100 object-cover rounded-lg shadow-md hover:scale-105 transition-transform duration-300"
+    />
+  </div>
+</div>
+
+<section class="bg-[#e9d8a6] py-10">
+  <div class="max-w-6xl mx-auto text-center px-6 md:px-10">
+    <h2 class="text-2xl md:text-3xl font-semibold text-[#4e563f] mb-8">
+      Nuestros Espacios
+    </h2>
+
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"
+    >
+      <!-- Imagenes -->
+      {
+        [
+          "hero2+(3).jpeg",
+          "hero3.jpeg",
+          "reserva-fondo.jpeg",
+          "imagen-de-frente.jpeg",
+          "hero1.jpeg",
+        ].map((img) => (
+          <div class="w-full h-48 rounded-lg overflow-hidden shadow-md hover:scale-105 transition-transform duration-300">
+            <img
+              src={`https://images-cam93.s3.us-east-1.amazonaws.com/${img}`}
+              alt="Espacio Trattoria"
+              class="w-full h-full object-cover"
+            />
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Mapa -->
+<section class="bg-[#f6f6f6] py-10">
+  <div class="max-w-6xl mx-auto px-6 text-center">
+    <h3 class="text-xl font-semibold text-[#4e563f] mb-6">
+      Puedes encontrarnos aquí
+    </h3>
+    <div class="w-full h-96 rounded-xl overflow-hidden shadow-lg">
+      <iframe
+        src="https://www.google.com/maps?q=Carrera+10+%2327-27,+Bogotá,+Colombia&output=embed"
+        width="100%"
+        height="100%"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        class="border-0"></iframe>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,94 @@
+<section class="bg-[#e9d8a6] text-[#4e563f] py-16 px-6 font-serif">
+  <div class="max-w-4xl mx-auto text-center">
+    <h2 class="text-4xl md:text-5xl font-light mb-4">Contáctanos</h2>
+    <p class="text-lg md:text-xl mb-12 italic text-[#4e563f]/80">
+      ¿Tienes alguna pregunta o quieres hacer una reserva especial?
+    </p>
+
+    <form
+      id="formContacto"
+      class="grid gap-6 text-left bg-white/90 rounded-xl shadow-xl p-8 max-w-2xl mx-auto"
+    >
+      <div>
+        <label class="block mb-2 text-sm font-medium">Nombre</label>
+        <input
+          type="text"
+          name="nombre"
+          required
+          class="w-full border border-[#ccc] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#4e563f] transition"
+        />
+      </div>
+
+      <div>
+        <label class="block mb-2 text-sm font-medium">Correo electrónico</label>
+        <input
+          type="email"
+          name="correo"
+          required
+          class="w-full border border-[#ccc] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#4e563f] transition"
+        />
+      </div>
+
+      <div>
+        <label class="block mb-2 text-sm font-medium">Mensaje</label>
+        <textarea
+          name="mensaje"
+          rows="6"
+          required
+          class="w-full border border-[#ccc] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#4e563f] transition"
+        ></textarea>
+      </div>
+
+      <button
+        type="submit"
+        class="bg-[#4e563f] text-white px-6 py-3 rounded-full hover:bg-[#3a4534] transition"
+      >
+        Enviar mensaje
+      </button>
+
+      <p id="mensajeExito" class="text-green-600 mt-4 hidden">
+        ✅ Mensaje enviado con éxito.
+      </p>
+    </form>
+  </div>
+</section>
+
+<!-- Script para envío -->
+<script is:inline>
+  document
+    .getElementById("formContacto")
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const nombre = form.nombre.value.trim();
+      const correo = form.correo.value.trim();
+      const mensaje = form.mensaje.value.trim();
+
+      const datos = {
+        nombre,
+        correo,
+        mensaje,
+      };
+
+      try {
+        const respuesta = await fetch("https://httpbin.org/post", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(datos),
+        });
+
+        if (respuesta.ok) {
+          console.log("✅ Enviado:", await respuesta.json());
+          document.getElementById("mensajeExito").classList.remove("hidden");
+          form.reset();
+        } else {
+          console.error("❌ Error al enviar");
+        }
+      } catch (err) {
+        console.error("❌ Error de red:", err);
+      }
+    });
+</script>

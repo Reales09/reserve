@@ -1,0 +1,335 @@
+---
+import FormularioCliente from "./FormularioCliente.astro";
+let mostrarFormulario = true; // Lo cambiarás a dinámico con JavaScript luego
+---
+
+<section
+  class="bg-cover bg-center text-[#4e563f] py-12 px-6 font-serif"
+  style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+   url('https://images-cam93.s3.us-east-1.amazonaws.com/hero2+(3).jpeg');"
+>
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-4xl text-center text-[#f6f6f6] font-light mb-12">
+      Haz tu Reserva
+    </h2>
+
+    <div
+      id="reserva-container"
+      class="grid grid-cols-1 md:grid-cols-3 gap-8 text-[#4e563f]"
+    >
+      <!-- Invitados -->
+      <div class="bg-white/90 p-6 rounded-xl shadow text-center">
+        <h3 class="text-xl font-light mb-3">Elige</h3>
+        <p class="text-sm text-gray-500 mb-4">Número de personas</p>
+        <div class="flex justify-center items-center gap-4">
+          <button
+            id="decrement"
+            class="w-10 h-10 border border-[#4e563f] rounded-full hover:bg-[#e9d8a6] hover:text-black transition"
+            >-</button
+          >
+          <span id="invitados" class="text-xl">1</span>
+          <button
+            id="increment"
+            class="w-10 h-10 border border-[#4e563f] rounded-full hover:bg-[#e9d8a6] hover:text-black transition"
+            >+</button
+          >
+        </div>
+        <p class="text-xs text-gray-400 mt-4">¿Evento? Contáctanos</p>
+      </div>
+
+      <!-- Calendario -->
+      <div class="bg-white/90 p-6 rounded-xl shadow text-center">
+        <h3 class="text-xl font-light mb-3">Fecha</h3>
+        <div class="mb-4 flex items-center justify-between">
+          <button
+            id="prevMonth"
+            class="text-sm text-gray-500 hover:text-[#4e563f]"
+            >&larr; Anterior</button
+          >
+          <span id="calendarTitle" class="text-sm font-medium text-[#4e563f]"
+            >Julio 2025</span
+          >
+          <button
+            id="nextMonth"
+            class="text-sm text-gray-500 hover:text-[#4e563f]"
+            >Siguiente &rarr;</button
+          >
+        </div>
+        <div
+          class="grid grid-cols-7 gap-2 text-sm text-gray-600 font-medium mb-2"
+        >
+          <span>DOM</span><span>LUN</span><span>MAR</span><span>MIÉ</span><span
+            >JUE</span
+          ><span>VIE</span><span>SÁB</span>
+        </div>
+        <div id="calendarDays" class="grid grid-cols-7 gap-2 text-sm"></div>
+      </div>
+
+      <!-- Hora -->
+      <div class="bg-white/90 p-6 rounded-xl shadow text-center">
+        <h3 class="text-xl font-light mb-3">Hora</h3>
+        <p class="text-sm text-gray-500 mb-4">Selecciona una hora disponible</p>
+        <select
+          id="selectHora"
+          class="mt-2 px-4 py-2 border border-[#ccc] rounded-full text-[#4e563f] text-sm hover:border-[#4e563f] focus:outline-none"
+        >
+          <option value="">-- Selecciona una hora --</option>
+          <option>08:00 am</option>
+          <option>09:00 am</option>
+          <option>10:00 am</option>
+          <option>11:00 am</option>
+          <option>12:00 pm</option>
+          <option>01:00 pm</option>
+          <option>02:00 pm</option>
+          <option>03:00 pm</option>
+          <option>04:00 pm</option>
+          <option>05:00 pm</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Confirmar -->
+    <div class="text-center mt-12">
+      <button
+        id="confirmarReserva"
+        class="bg-[#e9d8a6] text-black px-10 py-4 rounded-full text-lg hover:bg-[#4e563f] hover:text-white transition shadow-md"
+      >
+        Confirmar Reserva
+      </button>
+    </div>
+
+    <!-- Modal del Formulario Cliente -->
+    <FormularioCliente />
+  </div>
+</section>
+<script is:inline>
+  let invitados = 1;
+  let fechaSeleccionada = null;
+  let horaSeleccionada = null;
+  let selectedDay = null;
+  let datosReserva = null;
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const invitadosEl = document.getElementById("invitados");
+
+    document.getElementById("increment").addEventListener("click", () => {
+      invitados++;
+      invitadosEl.textContent = invitados;
+    });
+
+    document.getElementById("decrement").addEventListener("click", () => {
+      if (invitados > 1) {
+        invitados--;
+        invitadosEl.textContent = invitados;
+      }
+    });
+
+    // Calendario
+    const calendarDays = document.getElementById("calendarDays");
+    const calendarTitle = document.getElementById("calendarTitle");
+    const prevMonth = document.getElementById("prevMonth");
+    const nextMonth = document.getElementById("nextMonth");
+    let date = new Date();
+
+    const renderCalendar = () => {
+      const month = date.getMonth();
+      const year = date.getFullYear();
+      const monthNames = [
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre",
+      ];
+      calendarTitle.textContent = `${monthNames[month]} ${year}`;
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      calendarDays.innerHTML = "";
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Comparar solo fecha sin hora
+
+      for (let i = 0; i < firstDay; i++) {
+        calendarDays.appendChild(document.createElement("div"));
+      }
+
+      for (let i = 1; i <= daysInMonth; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+
+        const fechaBtn = new Date(year, month, i);
+        fechaBtn.setHours(0, 0, 0, 0);
+
+        const esPasado = fechaBtn < today;
+        const esDomingo = fechaBtn.getDay() === 0;
+
+        btn.className =
+          "transition p-2 rounded " +
+          (esPasado || esDomingo
+            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+            : "hover:bg-[#e9d8a6] hover:text-black");
+
+        if (!esPasado && !esDomingo) {
+          btn.addEventListener("click", () => {
+            if (selectedDay)
+              selectedDay.classList.remove("bg-[#e9d8a6]", "text-black");
+            btn.classList.add("bg-[#e9d8a6]", "text-black");
+            selectedDay = btn;
+
+            const monthNum = month + 1;
+            fechaSeleccionada = `${year}-${monthNum
+              .toString()
+              .padStart(2, "0")}-${i.toString().padStart(2, "0")}`;
+
+            const selectHora = document.getElementById("selectHora");
+            selectHora.innerHTML =
+              '<option value="">-- Selecciona una hora --</option>';
+
+            // Asegura la fecha seleccionada
+            const seleccionada = new Date(year, month, i);
+            seleccionada.setHours(0, 0, 0, 0);
+
+            const diaSemana = seleccionada.getDay(); // 0: domingo, 1: lunes, ..., 6: sábado
+
+            // Horarios según el día de la semana
+            let horasDisponibles = [];
+
+            if ([1, 2, 3].includes(diaSemana)) {
+              horasDisponibles = [
+                "11:00 am",
+                "12:00 pm",
+                "01:00 pm",
+                "02:00 pm",
+                "03:00 pm",
+                "04:00 pm",
+                "05:00 pm",
+                "06:00 pm",
+                "07:00 pm",
+              ];
+            } else if ([4, 5].includes(diaSemana)) {
+              horasDisponibles = [
+                "11:00 am",
+                "12:00 pm",
+                "01:00 pm",
+                "02:00 pm",
+                "03:00 pm",
+                "04:00 pm",
+                "05:00 pm",
+                "06:00 pm",
+                "07:00 pm",
+                "08:00 pm",
+                "09:00 pm",
+              ];
+            } else if (diaSemana === 6) {
+              horasDisponibles = [
+                "11:00 am",
+                "12:00 pm",
+                "01:00 pm",
+                "02:00 pm",
+                "03:00 pm",
+                "04:00 pm",
+                "05:00 pm",
+              ];
+            }
+
+            // Mostrar solo horas válidas (no pasadas si es hoy)
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const ahora = new Date();
+            const horaActual = ahora.getHours();
+
+            let algunaHoraValida = false;
+
+            horasDisponibles.forEach((horaTexto) => {
+              const [hora, meridiano] = horaTexto.split(" ");
+              let [h, m] = hora.split(":").map(Number);
+              if (meridiano.toLowerCase() === "pm" && h !== 12) h += 12;
+              if (meridiano.toLowerCase() === "am" && h === 12) h = 0;
+
+              if (seleccionada.getTime() !== hoy.getTime() || h > horaActual) {
+                const option = document.createElement("option");
+                option.value = horaTexto;
+                option.textContent = horaTexto;
+                selectHora.appendChild(option);
+                algunaHoraValida = true;
+              }
+            });
+
+            // Si no hay horas válidas, mostrar mensaje
+            if (!algunaHoraValida) {
+              const option = document.createElement("option");
+              option.disabled = true;
+              option.textContent = "No hay horarios disponibles hoy";
+              selectHora.appendChild(option);
+            }
+          });
+        } else {
+          btn.disabled = true;
+        }
+
+        calendarDays.appendChild(btn);
+      }
+    };
+
+    renderCalendar();
+    nextMonth.addEventListener("click", () => {
+      date.setMonth(date.getMonth() + 1);
+      renderCalendar();
+    });
+    prevMonth.addEventListener("click", () => {
+      date.setMonth(date.getMonth() - 1);
+      renderCalendar();
+    });
+
+    // Hora
+    const selectHora = document.getElementById("selectHora");
+    selectHora.addEventListener("change", () => {
+      const horaTexto = selectHora.value;
+      if (!horaTexto) {
+        horaSeleccionada = null;
+        return;
+      }
+      const [hora, meridiano] = horaTexto.split(" ");
+      let [h, m] = hora.split(":").map(Number);
+      if (meridiano.toLowerCase() === "pm" && h !== 12) h += 12;
+      if (meridiano.toLowerCase() === "am" && h === 12) h = 0;
+      horaSeleccionada = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:00`;
+    });
+
+    const confirmarBtn = document.getElementById("confirmarReserva");
+    confirmarBtn.addEventListener("click", () => {
+      if (!fechaSeleccionada || !horaSeleccionada) {
+        alert("Por favor selecciona la fecha y la hora");
+        return;
+      }
+
+      datosReserva = {
+        personas: invitados,
+        fecha: fechaSeleccionada,
+        hora: horaSeleccionada,
+      };
+
+      window.datosReserva = datosReserva;
+
+      // 🔧 Mostrar resumen visual de reserva
+      document.getElementById("resumenPersonas").textContent =
+        datosReserva.personas;
+      document.getElementById("resumenFecha").textContent = datosReserva.fecha;
+      document.getElementById("resumenHora").textContent = datosReserva.hora;
+
+      // Mostrar el modal
+      const modalCliente = document.getElementById("modalCliente");
+      modalCliente.classList.remove("hidden");
+      modalCliente.classList.add("flex");
+
+      console.log("🟨 Esperando datos del cliente...");
+    });
+  });
+</script>
