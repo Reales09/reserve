@@ -126,23 +126,28 @@ const { mostrar } = Astro.props;
         };
 
         const reserva = window.datosReserva || {};
-        const startUTC = new Date(`${reserva.fecha}T${reserva.hora}`);
-        const endUTC = new Date(startUTC.getTime() + 2 * 60 * 60 * 1000); // +2 horas
+        // Por esto:
+        const [year, month, day] = reserva.fecha.split("-");
+        const [hour, minute] = reserva.hora.split(":");
+
+        const startLocal = new Date(
+          Date.UTC(year, month - 1, day, hour, minute)
+        );
+        const endLocal = new Date(startLocal.getTime() + 2 * 60 * 60 * 1000);
 
         const datosReserva = {
           ...cliente,
           number_of_guests: reserva.personas,
           restaurant_id: 1,
-          start_at: startUTC.toISOString(),
-          end_at: endUTC.toISOString(),
+          start_at: startLocal.toISOString(),
+          end_at: endLocal.toISOString(),
         };
-
         console.log("✅ Enviando al backend:", datosReserva);
 
         try {
           // Usamos una ruta relativa. Nginx se encargará de redirigir esto al backend.
           const response = await fetch(
-            `/api/v1/reserves`, 
+            `http://localhost:3050/api/v1/reserves`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -151,11 +156,15 @@ const { mostrar } = Astro.props;
           );
 
           if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: 'Error sin detalles.' }));
+            const errorData = await response
+              .json()
+              .catch(() => ({ message: "Error sin detalles." }));
             console.error("Detalles del error:", errorData);
-            throw new Error(`Error ${response.status}: ${errorData.message || 'No se pudo crear la reserva'}`);
+            throw new Error(
+              `Error ${response.status}: ${errorData.message || "No se pudo crear la reserva"}`
+            );
           }
-          
+
           alert("✅ Reserva registrada exitosamente");
           cerrarModal();
         } catch (err) {
