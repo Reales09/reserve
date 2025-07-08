@@ -56,8 +56,17 @@ const ReservaRow = ({ reserva, onUpdateStatus, onCancelReserva }) => {
             <span className="cliente-email">{reserva.cliente_email}</span>
           </div>
           <div className="fecha-info">
-            <span className="fecha">{reserva.start_at.toLocaleDateString('es-ES')}</span>
-            <span className="hora">{reserva.getFormattedTime()}</span>
+            <span className="fecha">
+              {new Date(reserva.start_at).toLocaleDateString('es-CO', { timeZone: 'America/Bogota' })}
+            </span>
+            <span className="hora">
+              {new Date(reserva.start_at).toLocaleTimeString('es-CO', {
+                timeZone: 'America/Bogota',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </span>
+
           </div>
         </div>
 
@@ -102,12 +111,21 @@ const ReservaRow = ({ reserva, onUpdateStatus, onCancelReserva }) => {
                 <h4>📅 Detalles de la Reserva</h4>
                 <div className="detail-item">
                   <span className="label">Fecha:</span>
-                  <span className="value">{reserva.getFormattedDate()}</span>
+                  <span className="value">
+                    {new Date(reserva.start_at).toLocaleDateString('es-CO', { timeZone: 'America/Bogota' })}
+                  </span>
                 </div>
                 <div className="detail-item">
                   <span className="label">Horario:</span>
-                  <span className="value">{reserva.getFormattedTime()}</span>
+                  <span className="value">
+                    {new Date(reserva.start_at).toLocaleTimeString('es-CO', {
+                      timeZone: 'America/Bogota',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
                 </div>
+
                 <div className="detail-item">
                   <span className="label">Duración:</span>
                   <span className="value">{reserva.getFormattedDuration()}</span>
