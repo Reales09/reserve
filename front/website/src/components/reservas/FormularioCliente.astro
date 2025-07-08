@@ -147,11 +147,14 @@ const { mostrar } = Astro.props;
         console.log("✅ Enviando al backend:", datosReserva);
 
         try {
-          const response = await fetch("http://3.91.226.240", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(datosReserva),
-          });
+          const response = await fetch(
+            "http://3.91.226.240:3050/api/v1/reserves",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(datosReserva),
+            }
+          );
 
           if (!response.ok) {
             const errorData = await response
