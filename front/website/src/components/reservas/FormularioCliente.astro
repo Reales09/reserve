@@ -126,13 +126,14 @@ const { mostrar } = Astro.props;
         };
 
         const reserva = window.datosReserva || {};
-        // Por esto:
-        const [year, month, day] = reserva.fecha.split("-");
-        const [hour, minute] = reserva.hora.split(":");
 
-        const startLocal = new Date(
-          Date.UTC(year, month - 1, day, hour, minute)
-        );
+        // ✅ Aquí se construye la fecha como hora local (Colombia)
+        const startLocal = new Date(`${reserva.fecha}T${reserva.hora}`);
+        if (isNaN(startLocal)) {
+          alert("⚠️ Fecha y hora inválidas. Verifica los campos.");
+          return;
+        }
+
         const endLocal = new Date(startLocal.getTime() + 2 * 60 * 60 * 1000);
 
         const datosReserva = {
@@ -142,11 +143,11 @@ const { mostrar } = Astro.props;
           start_at: startLocal.toISOString(),
           end_at: endLocal.toISOString(),
         };
+
         console.log("✅ Enviando al backend:", datosReserva);
 
         try {
-          // Usamos una ruta relativa. Nginx se encargará de redirigir esto al backend.
-          const response = await fetch("/api/v1/reserves", {
+          const response = await fetch("http://3.91.226.240", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(datosReserva),

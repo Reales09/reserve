@@ -11,6 +11,7 @@ import (
 	"html/template"
 	"net/smtp"
 	"strings"
+	"time"
 )
 
 type EmailService struct {
@@ -229,7 +230,8 @@ func (e *EmailService) getSecurityMethod(useTLS, useSTARTTLS bool) string {
 }
 
 func (e *EmailService) generateReservationConfirmationEmail(name string, reservation domain.Reservation) (string, error) {
-	const emailTemplate = `
+	const emailTemplate = `...
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -288,6 +290,12 @@ func (e *EmailService) generateReservationConfirmationEmail(name string, reserva
 		return "", err
 	}
 
+	location, err := time.LoadLocation("America/Bogota")
+	if err != nil {
+		return "", fmt.Errorf("error cargando zona horaria: %w", err)
+	}
+	startAtLocal := reservation.StartAt.In(location)
+
 	data := struct {
 		Name           string
 		Date           string
@@ -295,8 +303,8 @@ func (e *EmailService) generateReservationConfirmationEmail(name string, reserva
 		NumberOfGuests int
 	}{
 		Name:           name,
-		Date:           reservation.StartAt.Format("02/01/2006"),
-		Time:           reservation.StartAt.Format("15:04"),
+		Date:           startAtLocal.Format("02/01/2006"),
+		Time:           startAtLocal.Format("15:04"),
 		NumberOfGuests: reservation.NumberOfGuests,
 	}
 
@@ -309,7 +317,8 @@ func (e *EmailService) generateReservationConfirmationEmail(name string, reserva
 }
 
 func (e *EmailService) generateReservationCancellationEmail(name string, reservation domain.Reservation) (string, error) {
-	const emailTemplate = `
+	const emailTemplate = `...
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -360,11 +369,11 @@ func (e *EmailService) generateReservationCancellationEmail(name string, reserva
     </div>
 </body>
 </html>`
-
 	tmpl, err := template.New("cancellation").Parse(emailTemplate)
 	if err != nil {
 		return "", err
 	}
+	startAtLocal := reservation.StartAt.Add(-5 * time.Hour)
 
 	data := struct {
 		Name           string
@@ -373,8 +382,8 @@ func (e *EmailService) generateReservationCancellationEmail(name string, reserva
 		NumberOfGuests int
 	}{
 		Name:           name,
-		Date:           reservation.StartAt.Format("02/01/2006"),
-		Time:           reservation.StartAt.Format("15:04"),
+		Date:           startAtLocal.Format("02/01/2006"),
+		Time:           startAtLocal.Format("15:04"),
 		NumberOfGuests: reservation.NumberOfGuests,
 	}
 

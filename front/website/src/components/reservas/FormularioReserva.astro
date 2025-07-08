@@ -103,6 +103,12 @@ let mostrarFormulario = true; // Lo cambiarás a dinámico con JavaScript luego
   </div>
 </section>
 <script is:inline>
+  // 🔁 Recarga automática solo una vez por sesión
+  if (!sessionStorage.getItem("refreshedOnce")) {
+    sessionStorage.setItem("refreshedOnce", "true");
+    location.reload();
+  }
+
   let invitados = 1;
   let fechaSeleccionada = null;
   let horaSeleccionada = null;
@@ -154,7 +160,7 @@ let mostrarFormulario = true; // Lo cambiarás a dinámico con JavaScript luego
       calendarDays.innerHTML = "";
 
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // Comparar solo fecha sin hora
+      today.setHours(0, 0, 0, 0);
 
       for (let i = 0; i < firstDay; i++) {
         calendarDays.appendChild(document.createElement("div"));
@@ -184,21 +190,16 @@ let mostrarFormulario = true; // Lo cambiarás a dinámico con JavaScript luego
             selectedDay = btn;
 
             const monthNum = month + 1;
-            fechaSeleccionada = `${year}-${monthNum
-              .toString()
-              .padStart(2, "0")}-${i.toString().padStart(2, "0")}`;
+            fechaSeleccionada = `${year}-${monthNum.toString().padStart(2, "0")}-${i.toString().padStart(2, "0")}`;
 
             const selectHora = document.getElementById("selectHora");
             selectHora.innerHTML =
               '<option value="">-- Selecciona una hora --</option>';
 
-            // Asegura la fecha seleccionada
             const seleccionada = new Date(year, month, i);
             seleccionada.setHours(0, 0, 0, 0);
 
-            const diaSemana = seleccionada.getDay(); // 0: domingo, 1: lunes, ..., 6: sábado
-
-            // Horarios según el día de la semana
+            const diaSemana = seleccionada.getDay();
             let horasDisponibles = [];
 
             if ([1, 2, 3].includes(diaSemana)) {
@@ -239,7 +240,6 @@ let mostrarFormulario = true; // Lo cambiarás a dinámico con JavaScript luego
               ];
             }
 
-            // Mostrar solo horas válidas (no pasadas si es hoy)
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
             const ahora = new Date();
@@ -262,7 +262,6 @@ let mostrarFormulario = true; // Lo cambiarás a dinámico con JavaScript luego
               }
             });
 
-            // Si no hay horas válidas, mostrar mensaje
             if (!algunaHoraValida) {
               const option = document.createElement("option");
               option.disabled = true;
@@ -318,13 +317,11 @@ let mostrarFormulario = true; // Lo cambiarás a dinámico con JavaScript luego
 
       window.datosReserva = datosReserva;
 
-      // 🔧 Mostrar resumen visual de reserva
       document.getElementById("resumenPersonas").textContent =
         datosReserva.personas;
       document.getElementById("resumenFecha").textContent = datosReserva.fecha;
       document.getElementById("resumenHora").textContent = datosReserva.hora;
 
-      // Mostrar el modal
       const modalCliente = document.getElementById("modalCliente");
       modalCliente.classList.remove("hidden");
       modalCliente.classList.add("flex");
