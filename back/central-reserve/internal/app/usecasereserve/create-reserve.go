@@ -6,38 +6,32 @@ import (
 	"errors"
 )
 
-func (u *ReserveUseCase) CreateReserve(ctx context.Context, req domain.Reservation, name, email, phone string, dni uint) (string, error) {
+func (u *ReserveUseCase) CreateReserve(ctx context.Context, req domain.Reservation, name, email, phone string, dni string) (string, error) {
 	// 1. Buscar cliente por email y restaurant_id (constraint único)
 	client, err := u.repository.GetClientByEmailAndRestaurant(ctx, email, req.RestaurantID)
 	var clientID uint
 	if err == nil && client != nil {
-		// Cliente ya existe, usar este cliente
 		clientID = client.ID
 	} else {
-		// Buscar cliente por DNI como fallback
-		client, err = u.repository.GetClientByDni(ctx, dni)
-		if err == nil && client != nil {
-			clientID = client.ID
-		} else {
-			// Crear cliente si no existe
-			newClient := domain.Client{
-				Name:         name,
-				Email:        email,
-				Phone:        phone,
-				Dni:          dni,
-				RestaurantID: req.RestaurantID,
-			}
-			_, err := u.repository.CreateClient(ctx, newClient)
-			if err != nil {
-				return "", errors.New("No se pudo crear el cliente")
-			}
-			// Buscar el cliente recién creado para obtener el ID
-			client, err = u.repository.GetClientByDni(ctx, dni)
-			if err != nil || client == nil {
-				return "", errors.New("No se pudo obtener el cliente recién creado")
-			}
-			clientID = client.ID
+		// Crear cliente si no existe
+		newClient := domain.Client{
+			Name:         name,
+			Email:        email,
+			Phone:        phone,
+			Dni:          dni,
+			RestaurantID: req.RestaurantID,
 		}
+		_, err := u.repository.CreateClient(ctx, newClient)
+		if err != nil {
+			return "", errors.New("No se pudo crear el cliente")
+		}
+
+		// Buscar el cliente recién creado
+		client, err = u.repository.GetClientByEmailAndRestaurant(ctx, email, req.RestaurantID)
+		if err != nil || client == nil {
+			return "", errors.New("No se pudo obtener el cliente recién creado")
+		}
+		clientID = client.ID
 	}
 
 	// 2. Crear la reserva (sin mesa, statusId=1)

@@ -67,7 +67,7 @@ type Client struct {
 	Name         string `gorm:"size:255;not null"`
 	Email        string `gorm:"size:255;uniqueIndex:idx_rest_client_email,priority:2"`
 	Phone        string `gorm:"size:20"`
-	Dni          int64  `gorm:"not null;uniqueIndex:idx_rest_client_dni,priority:2"`
+	Dni          string `gorm:"size:30;not null;uniqueIndex:idx_rest_client_dni,priority:2"`
 
 	Reservations []Reservation
 	Restaurant   Restaurant `gorm:"foreignKey:RestaurantID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

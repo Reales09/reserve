@@ -9,7 +9,6 @@ import (
 func ReserveToDomain(r request.Reservation) domain.Reservation {
 	return domain.Reservation{
 		RestaurantID:   r.RestaurantID,
-		ClientID:       r.Dni,
 		StartAt:        r.StartAt,
 		EndAt:          r.EndAt,
 		NumberOfGuests: r.NumberOfGuests,

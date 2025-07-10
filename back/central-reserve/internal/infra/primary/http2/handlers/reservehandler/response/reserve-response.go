@@ -32,7 +32,7 @@ type ReserveDetail struct {
 	ClienteNombre   string `json:"cliente_nombre"`
 	ClienteEmail    string `json:"cliente_email"`
 	ClienteTelefono string `json:"cliente_telefono"`
-	ClienteDni      uint   `json:"cliente_dni"`
+	ClienteDni      string `json:"cliente_dni"`
 
 	// Mesa
 	MesaID        *uint `json:"mesa_id"`

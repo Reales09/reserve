@@ -9,7 +9,7 @@ import (
 
 type IUseCaseReserve interface {
 	HolaMundo(ctx context.Context) (string, error)
-	CreateReserve(ctx context.Context, reserve domain.Reservation, name, email, phone string, dni uint) (string, error)
+	CreateReserve(ctx context.Context, reserve domain.Reservation, name, email, phone string, dni string) (string, error)
 	GetReserves(ctx context.Context, statusID *uint, clientID *uint, tableID *uint, startDate *time.Time, endDate *time.Time) ([]domain.ReserveDetailDTO, error)
 	GetReserveByID(ctx context.Context, id uint) (*domain.ReserveDetailDTO, error)
 	CancelReservation(ctx context.Context, id uint, reason string) (string, error)

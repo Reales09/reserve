@@ -117,9 +117,11 @@ export class CreateReservaUseCase {
     }
 
     // Validate DNI
-    if (data.dni < 1) {
-      throw new Error('El DNI debe ser un número válido');
+ // Después:
+    if (typeof data.dni !== 'number' || data.dni < 0) {
+      throw new Error('El DNI debe ser un número positivo (o cero si no aplica)');
     }
+
 
     // Validate restaurant_id
     if (data.restaurant_id < 1) {
@@ -148,7 +150,7 @@ export class CreateReservaUseCase {
       name: data.name.trim(),
       email: data.email.trim().toLowerCase(),
       phone: data.phone.trim(),
-      dni: parseInt(data.dni, 10),
+      dni: data.dni.trim(),
       start_at: data.start_at,
       end_at: data.end_at,
       number_of_guests: parseInt(data.number_of_guests, 10),

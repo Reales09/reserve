@@ -50,10 +50,10 @@ func (r Repository) GetClientByID(ctx context.Context, id uint) (*domain.Client,
 	return &client, nil
 }
 
-func (r Repository) GetClientByDni(ctx context.Context, dni uint) (*domain.Client, error) {
+func (r Repository) GetClientByEmail(ctx context.Context, email string) (*domain.Client, error) {
 	var client domain.Client
-	if err := r.database.Conn(ctx).Table("client").Where("dni = ?", dni).First(&client).Error; err != nil {
-		r.logger.Error().Msg("Error al obtener cliente por DNI")
+	if err := r.database.Conn(ctx).Table("client").Where("email = ?", email).First(&client).Error; err != nil {
+		r.logger.Error().Msg("Error al obtener cliente por email")
 		return nil, err
 	}
 	return &client, nil
@@ -236,7 +236,7 @@ func (r Repository) GetReserves(ctx context.Context, statusID *uint, clientID *u
 		ClienteNombre        string
 		ClienteEmail         string
 		ClienteTelefono      string
-		ClienteDni           uint
+		ClienteDni           string
 		MesaID               *uint
 		MesaNumero           *int
 		MesaCapacidad        *int
@@ -512,7 +512,7 @@ func (r Repository) GetReserveByID(ctx context.Context, id uint) (*domain.Reserv
 		ClienteNombre        string
 		ClienteEmail         string
 		ClienteTelefono      string
-		ClienteDni           uint
+		ClienteDni           string
 		MesaID               *uint
 		MesaNumero           *int
 		MesaCapacidad        *int

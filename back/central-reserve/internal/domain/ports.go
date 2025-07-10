@@ -18,7 +18,7 @@ type IHolaMundo interface {
 	GetTableByID(ctx context.Context, id uint) (*Table, error)
 	UpdateTable(ctx context.Context, id uint, table Table) (string, error)
 	DeleteTable(ctx context.Context, id uint) (string, error)
-	GetClientByDni(ctx context.Context, dni uint) (*Client, error)
+	GetClientByEmail(ctx context.Context, email string) (*Client, error)
 	GetClientByEmailAndRestaurant(ctx context.Context, email string, restaurantID uint) (*Client, error)
 	CreateReservationStatusHistory(ctx context.Context, history ReservationStatusHistory) error
 	GetLatestReservationByClient(ctx context.Context, clientID uint) (*Reservation, error)

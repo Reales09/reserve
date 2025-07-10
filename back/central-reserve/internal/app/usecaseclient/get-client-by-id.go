@@ -12,7 +12,6 @@ func (u *ClientUseCase) GetClientByID(ctx context.Context, id uint) (*domain.Cli
 	}
 	return response, nil
 }
-
-func (u *ClientUseCase) GetClientByDni(ctx context.Context, dni uint) (*domain.Client, error) {
-	return u.repository.GetClientByDni(ctx, dni)
+func (u *ClientUseCase) GetClientByEmail(ctx context.Context, email string) (*domain.Client, error) {
+	return u.repository.GetClientByEmail(ctx, email)
 }

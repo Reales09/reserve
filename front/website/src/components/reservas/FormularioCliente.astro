@@ -54,16 +54,6 @@ const { mostrar } = Astro.props;
           />
         </div>
 
-        <div>
-          <label class="text-sm">Cédula</label>
-          <input
-            type="text"
-            name="cedula"
-            required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e9d8a6]"
-          />
-        </div>
-
         <div class="flex justify-between items-center mt-4">
           <button
             type="button"
@@ -122,33 +112,48 @@ const { mostrar } = Astro.props;
           name: formData.get("nombre"),
           phone: formData.get("telefono"),
           email: formData.get("email"),
-          dni: Number(formData.get("cedula")),
+          dni: "No aplica", // Asignar "No aplica" como valor por defecto
         };
 
         const reserva = window.datosReserva || {};
 
-        // ✅ Aquí se construye la fecha como hora local (Colombia)
-        const startLocal = new Date(`${reserva.fecha}T${reserva.hora}`);
-        if (isNaN(startLocal)) {
+        // 🚫 Ya no convertir a UTC. Solo crea fecha local directa
+        const [year, month, day] = reserva.fecha.split("-");
+        const [hora, minuto] = reserva.hora.split(":");
+
+        // Crea fecha directamente en hora local del navegador (no UTC)
+        const startInColombia = new Date(
+          Number(year),
+          Number(month) - 1, // Mes empieza desde 0
+          Number(day),
+          Number(hora),
+          Number(minuto),
+          0
+        );
+
+        // Fin: dos horas después
+        const endInColombia = new Date(
+          startInColombia.getTime() + 2 * 60 * 60 * 1000
+        );
+
+        if (isNaN(startInColombia.getTime())) {
           alert("⚠️ Fecha y hora inválidas. Verifica los campos.");
           return;
         }
-
-        const endLocal = new Date(startLocal.getTime() + 2 * 60 * 60 * 1000);
 
         const datosReserva = {
           ...cliente,
           number_of_guests: reserva.personas,
           restaurant_id: 1,
-          start_at: startLocal.toISOString(),
-          end_at: endLocal.toISOString(),
+          start_at: startInColombia.toISOString(),
+          end_at: endInColombia.toISOString(),
         };
 
         console.log("✅ Enviando al backend:", datosReserva);
 
         try {
           const response = await fetch(
-            "http://3.91.226.240:3050/api/v1/reserves",
+            "http://localhost:3050/api/v1/reserves",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -157,12 +162,14 @@ const { mostrar } = Astro.props;
           );
 
           if (!response.ok) {
-            const errorData = await response
-              .json()
-              .catch(() => ({ message: "Error sin detalles." }));
+            const errorData = await response.json().catch(() => ({
+              message: "Error sin detalles.",
+            }));
             console.error("Detalles del error:", errorData);
             throw new Error(
-              `Error ${response.status}: ${errorData.message || "No se pudo crear la reserva"}`
+              `Error ${response.status}: ${
+                errorData.message || "No se pudo crear la reserva"
+              }`
             );
           }
 
