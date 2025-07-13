@@ -1,5 +1,5 @@
 # Multi-stage build para React
-FROM node:18-alpine AS builder
+FROM --platform=linux/arm64 node:18-alpine AS builder
 
 # Argumento de build para la URL de la API
 ARG REACT_APP_API_BASE_URL
@@ -23,7 +23,7 @@ COPY . .
 RUN npm run build
 
 # Etapa de producción con nginx
-FROM nginx:alpine
+FROM --platform=linux/arm64 nginx:alpine
 
 # Copiar archivos construidos desde la etapa anterior
 COPY --from=builder /app/build /usr/share/nginx/html

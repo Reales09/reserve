@@ -1,5 +1,5 @@
 # Etapa 1: Build del proyecto Astro
-FROM node:20-alpine AS builder
+FROM --platform=linux/arm64 node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ COPY . .
 RUN npm run build
 
 # Etapa 2: Servir los archivos estáticos con Nginx
-FROM nginx:alpine
+FROM --platform=linux/arm64 nginx:alpine
 
 # Copiar el build de la etapa anterior
 COPY --from=builder /app/dist /usr/share/nginx/html

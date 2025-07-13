@@ -57,9 +57,10 @@ if [ ! -f "$PROJECT_PATH/$DOCKERFILE_PATH" ]; then
 fi
 
 # Construir la imagen
-log "Construyendo imagen Docker..."
+log "Construyendo imagen Docker para ARM64..."
 docker build \
     --no-cache \
+    --platform linux/arm64 \
     --tag "$IMAGE_NAME:$TAG" \
     --file "$PROJECT_PATH/$DOCKERFILE_PATH" \
     --build-arg REACT_APP_API_BASE_URL="$API_URL" \

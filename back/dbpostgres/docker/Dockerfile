@@ -4,7 +4,7 @@ FROM golang:1.23-alpine AS builder
 # Variables de compilación
 ENV CGO_ENABLED=0 \
     GOOS=linux \
-    GOARCH=amd64
+    GOARCH=arm64
 
 # Crear usuario no root para build
 RUN adduser -D -g '' appuser

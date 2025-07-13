@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# SCRIPT PARA CONSTRUIR IMAGEN DEL MIGRADOR DE BD (DBPOSTGRES)
+# SCRIPT PARA CONSTRUIR IMAGEN DEL WEBSITE (ASTRO)
 # =============================================================================
 
 set -e
@@ -27,13 +27,13 @@ error() {
 }
 
 # Configuración
-PROJECT_NAME="dbpostgres"
-PROJECT_PATH="../back/dbpostgres"
-DOCKERFILE_PATH="docker/Dockerfile"
-IMAGE_NAME="reserve-migrator"
+PROJECT_NAME="website"
+PROJECT_PATH="../front/website"
+DOCKERFILE_PATH="Dockerfile"
+IMAGE_NAME="reserve-website"
 TAG="${1:-latest}"
 
-log "Construyendo imagen del migrador de BD..."
+log "Construyendo imagen del website..."
 log "Proyecto: $PROJECT_NAME"
 log "Ruta: $PROJECT_PATH"
 log "Imagen: $IMAGE_NAME:$TAG"
@@ -59,13 +59,11 @@ docker build \
     --file "$PROJECT_PATH/$DOCKERFILE_PATH" \
     "$PROJECT_PATH"
 
-success "Imagen del migrador de BD construida exitosamente: $IMAGE_NAME:$TAG"
+success "Imagen del website construida exitosamente: $IMAGE_NAME:$TAG"
 
 # Mostrar información de la imagen
 log "Información de la imagen:"
 docker images "$IMAGE_NAME:$TAG" --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}"
 
 log "Para usar esta imagen, puedes ejecutar:"
-echo "  docker run --rm $IMAGE_NAME:$TAG"
-echo ""
-echo "⚠️  Nota: Esta imagen se ejecuta una sola vez para migrar la BD y luego se cierra." 
+echo "  docker run -p 80:80 $IMAGE_NAME:$TAG" 

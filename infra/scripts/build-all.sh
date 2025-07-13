@@ -58,6 +58,7 @@ SCRIPTS=(
     "build-migrator.sh"
     "build-backend.sh"
     "build-frontend.sh"
+    "build-website.sh"
 )
 
 # Función para ejecutar un script
