@@ -25,7 +25,7 @@ type Client struct {
 	Name         string
 	Email        string
 	Phone        string
-	Dni          string
+	Dni          *string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	DeletedAt    *time.Time
@@ -91,7 +91,7 @@ type ReserveDetailDTO struct {
 	ClienteNombre   string
 	ClienteEmail    string
 	ClienteTelefono string
-	ClienteDni      string
+	ClienteDni      *string
 
 	// Mesa
 	MesaID        *uint

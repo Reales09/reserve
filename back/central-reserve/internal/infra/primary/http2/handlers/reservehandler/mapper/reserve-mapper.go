@@ -18,19 +18,24 @@ func ReserveToDomain(r request.Reservation) domain.Reservation {
 
 func MapToReserveDetail(dto domain.ReserveDetailDTO) response.ReserveDetail {
 	return response.ReserveDetail{
-		ReservaID:            dto.ReservaID,
-		StartAt:              dto.StartAt,
-		EndAt:                dto.EndAt,
-		NumberOfGuests:       dto.NumberOfGuests,
-		ReservaCreada:        dto.ReservaCreada,
-		ReservaActualizada:   dto.ReservaActualizada,
-		EstadoCodigo:         dto.EstadoCodigo,
-		EstadoNombre:         dto.EstadoNombre,
-		ClienteID:            dto.ClienteID,
-		ClienteNombre:        dto.ClienteNombre,
-		ClienteEmail:         dto.ClienteEmail,
-		ClienteTelefono:      dto.ClienteTelefono,
-		ClienteDni:           dto.ClienteDni,
+		ReservaID:          dto.ReservaID,
+		StartAt:            dto.StartAt,
+		EndAt:              dto.EndAt,
+		NumberOfGuests:     dto.NumberOfGuests,
+		ReservaCreada:      dto.ReservaCreada,
+		ReservaActualizada: dto.ReservaActualizada,
+		EstadoCodigo:       dto.EstadoCodigo,
+		EstadoNombre:       dto.EstadoNombre,
+		ClienteID:          dto.ClienteID,
+		ClienteNombre:      dto.ClienteNombre,
+		ClienteEmail:       dto.ClienteEmail,
+		ClienteTelefono:    dto.ClienteTelefono,
+		ClienteDni: func() string {
+			if dto.ClienteDni != nil {
+				return *dto.ClienteDni
+			}
+			return ""
+		}(),
 		MesaID:               dto.MesaID,
 		MesaNumero:           dto.MesaNumero,
 		MesaCapacidad:        dto.MesaCapacidad,

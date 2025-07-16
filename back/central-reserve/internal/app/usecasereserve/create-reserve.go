@@ -14,11 +14,15 @@ func (u *ReserveUseCase) CreateReserve(ctx context.Context, req domain.Reservati
 		clientID = client.ID
 	} else {
 		// Crear cliente si no existe
+		var dniPtr *string
+		if dni != "" {
+			dniPtr = &dni
+		}
 		newClient := domain.Client{
 			Name:         name,
 			Email:        email,
 			Phone:        phone,
-			Dni:          dni,
+			Dni:          dniPtr,
 			RestaurantID: req.RestaurantID,
 		}
 		_, err := u.repository.CreateClient(ctx, newClient)

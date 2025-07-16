@@ -236,7 +236,7 @@ func (r Repository) GetReserves(ctx context.Context, statusID *uint, clientID *u
 		ClienteNombre        string
 		ClienteEmail         string
 		ClienteTelefono      string
-		ClienteDni           string
+		ClienteDni           *string
 		MesaID               *uint
 		MesaNumero           *int
 		MesaCapacidad        *int
@@ -512,7 +512,7 @@ func (r Repository) GetReserveByID(ctx context.Context, id uint) (*domain.Reserv
 		ClienteNombre        string
 		ClienteEmail         string
 		ClienteTelefono      string
-		ClienteDni           string
+		ClienteDni           *string
 		MesaID               *uint
 		MesaNumero           *int
 		MesaCapacidad        *int

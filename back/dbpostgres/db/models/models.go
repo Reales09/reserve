@@ -63,11 +63,11 @@ type RestaurantStaff struct {
 // ───────────────────────────────────────────
 type Client struct {
 	gorm.Model
-	RestaurantID uint   `gorm:"not null;index;uniqueIndex:idx_rest_client_email,priority:1"`
-	Name         string `gorm:"size:255;not null"`
-	Email        string `gorm:"size:255;uniqueIndex:idx_rest_client_email,priority:2"`
-	Phone        string `gorm:"size:20"`
-	Dni          string `gorm:"size:30;not null;uniqueIndex:idx_rest_client_dni,priority:2"`
+	RestaurantID uint    `gorm:"not null;index;uniqueIndex:idx_rest_client_email,priority:1"`
+	Name         string  `gorm:"size:255;not null"`
+	Email        string  `gorm:"size:255;uniqueIndex:idx_rest_client_email,priority:2"`
+	Phone        string  `gorm:"size:20"`
+	Dni          *string `gorm:"size:30;uniqueIndex:idx_rest_client_dni,priority:2"`
 
 	Reservations []Reservation
 	Restaurant   Restaurant `gorm:"foreignKey:RestaurantID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
