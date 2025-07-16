@@ -1,13 +1,70 @@
 # BuildKit y cachés de Docker
 infra/.buildkit/
+infra/scripts/.buildkit/
+.buildkit/
 *.tar
 *.img
 *.qcow2
 *.vmdk
 *.iso
 
+# Binarios y ejecutables
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+back/central-reserve/main
+back/central-reserve/bin/
+**/bin/
+**/dist/
+
 # Archivos grandes y temporales comunes
 *.log
 *.tmp
 *.bak
 *.swp
+*.cache
+*.pid
+
+# Node.js
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Go
+*.test
+*.out
+coverage.*
+*.coverprofile
+profile.cov
+go.work
+go.work.sum
+
+# Entornos
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+.dockerignore
+docker-compose.override.yml
