@@ -54,9 +54,8 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
       newErrors.phone = 'El teléfono debe tener al menos 7 dígitos';
     }
 
-    if (!formData.dni) {
-      newErrors.dni = 'El DNI es obligatorio';
-    } else if (formData.dni < 1) {
+    // DNI is optional - only validate if provided
+    if (formData.dni && formData.dni < 1) {
       newErrors.dni = 'El DNI debe ser un número válido';
     }
 
@@ -103,7 +102,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
       ...formData,
       start_at: new Date(formData.start_at).toISOString(),
       end_at: new Date(formData.end_at).toISOString(),
-      dni: parseInt(formData.dni, 10),
+      dni: formData.dni ? parseInt(formData.dni, 10) : null,
       number_of_guests: parseInt(formData.number_of_guests, 10),
       restaurant_id: parseInt(formData.restaurant_id, 10)
     };
@@ -193,14 +192,14 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="dni">🆔 DNI *</label>
+              <label htmlFor="dni">🆔 DNI (opcional)</label>
               <input
                 type="number"
                 id="dni"
                 value={formData.dni}
                 onChange={(e) => handleInputChange('dni', e.target.value)}
                 className={errors.dni ? 'error' : ''}
-                placeholder="Ej: 12345678"
+                placeholder="Ej: 12345678 (opcional)"
                 disabled={loading}
               />
               {errors.dni && <span className="error-text">{errors.dni}</span>}

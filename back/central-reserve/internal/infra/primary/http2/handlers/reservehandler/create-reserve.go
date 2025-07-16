@@ -37,7 +37,11 @@ func (h *ReserveHandler) CreateReserveHandler(c *gin.Context) {
 	reserve := mapper.ReserveToDomain(req)
 
 	// 3. Caso de uso ─────────────────────────────────────────
-	responseReserve, err := h.usecase.CreateReserve(ctx, reserve, req.Name, req.Email, req.Phone, req.Dni)
+	dni := ""
+	if req.Dni != nil {
+		dni = *req.Dni
+	}
+	responseReserve, err := h.usecase.CreateReserve(ctx, reserve, req.Name, req.Email, req.Phone, dni)
 	if err != nil {
 		h.logger.Error().Err(err).Msg("error interno al crear reserva")
 		c.JSON(http.StatusInternalServerError, gin.H{

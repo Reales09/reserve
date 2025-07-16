@@ -92,7 +92,7 @@ export class CreateReservaUseCase {
   }
 
   validateReservaData(data) {
-    const requiredFields = ['name', 'email', 'phone', 'dni', 'start_at', 'end_at', 'number_of_guests', 'restaurant_id'];
+    const requiredFields = ['name', 'email', 'phone', 'start_at', 'end_at', 'number_of_guests', 'restaurant_id'];
     
     for (const field of requiredFields) {
       if (!data[field] && data[field] !== 0) {
@@ -116,10 +116,11 @@ export class CreateReservaUseCase {
       throw new Error('El número de invitados debe estar entre 1 y 20');
     }
 
-    // Validate DNI
- // Después:
-    if (typeof data.dni !== 'number' || data.dni < 0) {
-      throw new Error('El DNI debe ser un número positivo (o cero si no aplica)');
+    // Validate DNI (optional)
+    if (data.dni !== null && data.dni !== undefined) {
+      if (typeof data.dni !== 'number' || data.dni < 0) {
+        throw new Error('El DNI debe ser un número positivo');
+      }
     }
 
 
@@ -150,7 +151,7 @@ export class CreateReservaUseCase {
       name: data.name.trim(),
       email: data.email.trim().toLowerCase(),
       phone: data.phone.trim(),
-      dni: data.dni.trim(),
+      dni: data.dni ? data.dni.toString().trim() : null,
       start_at: data.start_at,
       end_at: data.end_at,
       number_of_guests: parseInt(data.number_of_guests, 10),

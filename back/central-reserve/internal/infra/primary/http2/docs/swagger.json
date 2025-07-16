@@ -852,7 +852,6 @@
         "request.Reservation": {
             "type": "object",
             "required": [
-                "dni",
                 "email",
                 "end_at",
                 "name",

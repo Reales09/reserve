@@ -41,7 +41,6 @@ definitions:
       start_at:
         type: string
     required:
-    - dni
     - email
     - end_at
     - name
