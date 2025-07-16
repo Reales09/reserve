@@ -30,3 +30,7 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+.buildkit/
+infra/.buildkit/
+infra/scripts/.buildkit/
