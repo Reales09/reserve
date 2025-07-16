@@ -143,11 +143,22 @@ build_and_push_images() {
         
         # Construir imagen para ARM64 con optimizaciones
         log "Construyendo $tag_name para ARM64 (optimizado)..."
+        
+        # Configurar argumentos específicos para cada imagen
+        BUILD_ARGS=""
+        if [ "$tag_name" = "frontend" ]; then
+            # URL de la API para el frontend (comunicación interna Docker)
+            API_BASE_URL="${REACT_APP_API_BASE_URL:-http://3.220.183.29:3050}"
+            BUILD_ARGS="--build-arg REACT_APP_API_BASE_URL=$API_BASE_URL"
+            log "Configurando REACT_APP_API_BASE_URL para frontend: $API_BASE_URL"
+        fi
+        
         docker buildx build \
             --platform linux/arm64 \
             --cache-from type=local,src="$CACHE_DIR/$tag_name" \
             --cache-to type=local,dest="$CACHE_DIR/$tag_name",mode=max \
             --load \
+            $BUILD_ARGS \
             -t "reserve-$tag_name:$IMAGE_TAG" \
             -f "$context/$dockerfile" \
             "$context"

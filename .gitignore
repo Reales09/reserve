@@ -1,0 +1,13 @@
+# BuildKit y cachés de Docker
+infra/.buildkit/
+*.tar
+*.img
+*.qcow2
+*.vmdk
+*.iso
+
+# Archivos grandes y temporales comunes
+*.log
+*.tmp
+*.bak
+*.swp
