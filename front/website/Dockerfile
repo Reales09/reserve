@@ -10,6 +10,9 @@ RUN npm ci
 # Copiar el resto del código fuente
 COPY . .
 
+# Workaround para el bug de Rollup en ARM64
+RUN npm install @rollup/rollup-linux-arm64-musl
+
 # Construir la aplicación. Ya no necesitamos pasar variables de entorno.
 RUN npm run build
 
