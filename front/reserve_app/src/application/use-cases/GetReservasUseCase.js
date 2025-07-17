@@ -117,7 +117,7 @@ export class CreateReservaUseCase {
     }
 
     // Validate DNI (optional)
-    if (data.dni !== null && data.dni !== undefined) {
+    if (data.dni !== null && data.dni !== undefined && data.dni !== '') {
       if (typeof data.dni !== 'number' || data.dni < 0) {
         throw new Error('El DNI debe ser un número positivo');
       }
@@ -151,7 +151,7 @@ export class CreateReservaUseCase {
       name: data.name.trim(),
       email: data.email.trim().toLowerCase(),
       phone: data.phone.trim(),
-      dni: data.dni ? data.dni.toString().trim() : null,
+      dni: data.dni ? data.dni.toString().trim() : '',
       start_at: data.start_at,
       end_at: data.end_at,
       number_of_guests: parseInt(data.number_of_guests, 10),

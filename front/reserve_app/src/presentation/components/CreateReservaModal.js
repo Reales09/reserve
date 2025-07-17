@@ -102,7 +102,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
       ...formData,
       start_at: new Date(formData.start_at).toISOString(),
       end_at: new Date(formData.end_at).toISOString(),
-      dni: formData.dni ? parseInt(formData.dni, 10) : null,
+      dni: formData.dni ? parseInt(formData.dni, 10) : '',
       number_of_guests: parseInt(formData.number_of_guests, 10),
       restaurant_id: parseInt(formData.restaurant_id, 10)
     };
