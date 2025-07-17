@@ -1,0 +1,346 @@
+/* Sidebar.css */
+.sidebar {
+    width: 80px;
+    /* En lugar de 70px */
+    /* Ancho colapsado por defecto */
+    height: 100vh;
+    background: #2b2b2b;
+    /* Fondo negro-gris */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.sidebar:hover {
+    width: 280px;
+    /* Ancho expandido en hover */
+    background: #1a1a1a;
+    /* Más oscuro en hover */
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Siempre centrado inicialmente */
+}
+
+.sidebar:hover .sidebar-header {
+    justify-content: flex-start;
+    /* Alineado a la izquierda en hover */
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    white-space: nowrap;
+}
+
+.logo-icon {
+    font-size: 28px;
+    line-height: 1;
+    flex-shrink: 0;
+    /* El icono siempre visible */
+}
+
+.logo-text {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ecf0f1;
+    opacity: 0;
+    /* Invisible por defecto */
+    transform: translateX(-20px);
+    transition: all 0.3s ease 0.1s;
+    width: 0;
+    /* Sin espacio por defecto */
+    overflow: hidden;
+}
+
+.sidebar:hover .logo-text {
+    opacity: 1;
+    /* Visible en hover */
+    transform: translateX(0);
+    width: auto;
+    /* Toma su espacio natural */
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 30px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Centrado vertical */
+}
+
+.nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 20px 16px;
+    background: none;
+    border: none;
+    color: #bdc3c7;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 0;
+    position: relative;
+    justify-content: center;
+    /* Centrado por defecto */
+}
+
+.sidebar:hover .nav-button {
+    justify-content: flex-start;
+    /* Alineado a la izquierda en hover */
+    padding: 26px 24px;
+    /* Más padding a los lados en hover */
+}
+
+.nav-button:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ecf0f1;
+}
+
+.nav-button.active {
+    background: rgba(52, 152, 219, 0.15);
+    color: #3498db;
+}
+
+.nav-button.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #3498db;
+}
+
+.nav-icon {
+    font-size: 32px;
+    /* Más grande */
+    line-height: 1;
+    min-width: 32px;
+    /* Ajustar al mismo tamaño */
+    flex-shrink: 0;
+    text-align: center;
+    color: #bdc3c7;
+    font-weight: bold;
+}
+
+.nav-label {
+    font-size: 16px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    /* Invisible por defecto */
+    transform: translateX(-20px);
+    transition: all 0.3s ease 0.1s;
+    width: 0;
+    /* Sin espacio por defecto */
+    overflow: hidden;
+}
+
+.sidebar:hover .nav-label {
+    opacity: 1;
+    /* Visible en hover */
+    transform: translateX(0);
+    width: auto;
+    /* Toma su espacio natural */
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Centrado por defecto */
+}
+
+.sidebar:hover .sidebar-footer {
+    justify-content: flex-start;
+    /* Alineado a la izquierda en hover */
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #bdc3c7;
+    white-space: nowrap;
+}
+
+.user-icon {
+    font-size: 20px;
+    line-height: 1;
+    flex-shrink: 0;
+    /* Siempre visible */
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    /* Invisible por defecto */
+    transform: translateX(-20px);
+    transition: all 0.3s ease 0.1s;
+    width: 0;
+    /* Sin espacio por defecto */
+    overflow: hidden;
+}
+
+.sidebar:hover .user-name {
+    opacity: 1;
+    /* Visible en hover */
+    transform: translateX(0);
+    width: auto;
+    /* Toma su espacio natural */
+}
+
+/* Tooltip para cuando está colapsado */
+.nav-item::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1a1a1a;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 1001;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    left: 70px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-right-color: #1a1a1a;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+/* Solo mostrar tooltips cuando NO estamos en hover del sidebar */
+.sidebar:not(:hover) .nav-item:hover::after,
+.sidebar:not(:hover) .nav-item:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Ocultar tooltips cuando el sidebar está expandido */
+.sidebar:hover .nav-item::after,
+.sidebar:hover .nav-item::before {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Responsive - En móviles mantenemos el comportamiento normal */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+    }
+
+    .sidebar:hover {
+        width: 70px;
+        /* No se expande en móviles */
+        background: #2b2b2b;
+    }
+
+    .logo-text,
+    .nav-label,
+    .user-name {
+        display: none;
+    }
+
+    .nav-item::after,
+    .nav-item::before {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.mobile-open {
+        transform: translateX(0);
+        width: 280px;
+    }
+
+    .sidebar.mobile-open .logo-text,
+    .sidebar.mobile-open .nav-label,
+    .sidebar.mobile-open .user-name {
+        display: block;
+        opacity: 1;
+        transform: translateX(0);
+        width: auto;
+    }
+}
+
+/* Iconos personalizados */
+.icon-calendar::before {
+    content: '▢';
+    color: #bdc3c7;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.icon-list::before {
+    content: '☰';
+    color: #bdc3c7;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.nav-button.active .nav-icon::before {
+    color: #3498db;
+}
+
+.nav-button:hover .nav-icon::before {
+    color: #ecf0f1;
+}

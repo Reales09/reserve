@@ -92,7 +92,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -137,7 +137,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
     <div className="modal-overlay" onClick={handleClose}>
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>➕ Crear Nueva Reserva</h2>
+          <h2> Crear Nueva Reserva</h2>
           <button
             className="modal-close-btn"
             onClick={handleClose}
@@ -150,7 +150,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-grid">
             <div className="form-group">
-              <label htmlFor="name">👤 Nombre Completo *</label>
+              <label htmlFor="name"> Nombre Completo *</label>
               <input
                 type="text"
                 id="name"
@@ -164,7 +164,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="email">📧 Email *</label>
+              <label htmlFor="email"> Email *</label>
               <input
                 type="email"
                 id="email"
@@ -178,7 +178,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="phone">📱 Teléfono *</label>
+              <label htmlFor="phone"> Teléfono *</label>
               <input
                 type="tel"
                 id="phone"
@@ -192,7 +192,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="dni">🆔 DNI (opcional)</label>
+              <label htmlFor="dni"> DNI (opcional)</label>
               <input
                 type="number"
                 id="dni"
@@ -206,7 +206,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="start_at">📅 Fecha y Hora de Inicio *</label>
+              <label htmlFor="start_at">Fecha y Hora de Inicio *</label>
               <input
                 type="datetime-local"
                 id="start_at"
@@ -220,7 +220,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="end_at">🕒 Fecha y Hora de Fin *</label>
+              <label htmlFor="end_at">Fecha y Hora de Fin *</label>
               <input
                 type="datetime-local"
                 id="end_at"
@@ -234,7 +234,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="number_of_guests">👥 Número de Invitados *</label>
+              <label htmlFor="number_of_guests"> Número de Invitados *</label>
               <input
                 type="number"
                 id="number_of_guests"
@@ -249,7 +249,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="restaurant_id">🏪 Restaurante *</label>
+              <label htmlFor="restaurant_id"> Restaurante *</label>
               <select
                 id="restaurant_id"
                 value={formData.restaurant_id}

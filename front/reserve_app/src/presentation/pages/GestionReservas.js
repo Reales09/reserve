@@ -15,7 +15,8 @@ const GestionReservas = () => {
     cancelReserva,
     createReserva,
     applyFilters,
-    clearFilters
+    clearFilters,
+    fetchReservas // 🔧 NUEVO: Agregamos fetchReservas para poder refrescar manualmente
   } = useReservas();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -24,6 +25,13 @@ const GestionReservas = () => {
     const result = await createReserva(reservaData);
     if (result.success) {
       setShowCreateModal(false);
+
+      // 🔧 OPCIÓN 1: Recargar solo los datos (más eficiente)
+      await fetchReservas();
+
+      // 🔧 OPCIÓN 2: O si prefieres recargar toda la página (descomenta la línea de abajo)
+      // setTimeout(() => window.location.reload(), 500);
+
     }
     return result;
   };
@@ -125,13 +133,13 @@ const GestionReservas = () => {
               <h3>No hay reservas disponibles</h3>
               <p>No se encontraron reservas con los filtros aplicados.</p>
               <div className="empty-actions">
-                <button 
+                <button
                   className="clear-filters-button"
                   onClick={clearFilters}
                 >
                   Limpiar Filtros
                 </button>
-                <button 
+                <button
                   className="btn-create-reserva"
                   onClick={() => setShowCreateModal(true)}
                 >
@@ -152,7 +160,7 @@ const GestionReservas = () => {
                   <span>Invitados</span>
                 </div>
               </div>
-              
+
               <div className="reservas-rows">
                 {reservas.map((reserva) => (
                   <ReservaRow

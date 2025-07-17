@@ -1,17 +1,23 @@
-/* ReservaRow.css */
+/* ReservaRow.css - ACTUALIZACIÓN TEMA NEGRO-GRIS */
 .reserva-row {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  /* 🔧 AUMENTADO: Más redondeado */
+  box-shadow: 0 4px 12px rgba(43, 43, 43, 0.1);
+  /* 🔧 CAMBIADO: Sombra negro-gris */
+  border: 1px solid rgba(43, 43, 43, 0.1);
+  /* 🔧 CAMBIADO: Borde negro-gris */
   margin-bottom: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  /* 🔧 AUMENTADO: Transición más suave */
   overflow: hidden;
 }
 
 .reserva-row:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(43, 43, 43, 0.15);
+  /* 🔧 CAMBIADO: Sombra negro-gris */
+  transform: translateY(-2px);
+  /* 🔧 AUMENTADO: Más elevación */
 }
 
 /* Compact Row Styles */
@@ -21,12 +27,13 @@
   justify-content: space-between;
   padding: 16px 20px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.3s ease;
   min-height: 70px;
 }
 
 .reserva-row-compact:hover {
-  background-color: #f8fafc;
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%);
+  /* 🔧 CAMBIADO: Gradiente sutil */
 }
 
 .row-left {
@@ -39,27 +46,36 @@
 .reserva-id {
   font-weight: 700;
   font-size: 1.1rem;
-  color: #2d3748;
+  color: #2b2b2b;
+  /* 🔧 CAMBIADO: Color negro-gris en lugar de #2d3748 */
 }
 
 .id-label {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
+  /* 🔧 CAMBIADO: Gradiente negro-gris */
   color: white;
-  padding: 4px 12px;
+  padding: 6px 14px;
+  /* 🔧 AUMENTADO: Más padding */
   border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 600;
+  box-shadow: 0 2px 8px rgba(43, 43, 43, 0.2);
+  /* 🔧 NUEVO: Sombra */
+  letter-spacing: 0.5px;
+  /* 🔧 NUEVO: Espaciado de letras */
 }
 
 .status-badge {
-  padding: 4px 12px;
+  padding: 6px 14px;
+  /* 🔧 AUMENTADO: Más padding */
   border-radius: 12px;
   font-size: 0.8rem;
   font-weight: 600;
   color: white;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+  /* 🔧 AUMENTADO: Más espaciado */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .row-center {
@@ -77,13 +93,15 @@
 
 .cliente-nombre {
   font-weight: 600;
-  color: #2d3748;
+  color: #2b2b2b;
+  /* 🔧 CAMBIADO: Color negro-gris */
   font-size: 0.95rem;
   margin-bottom: 2px;
 }
 
 .cliente-email {
-  color: #4a5568;
+  color: #555555;
+  /* 🔧 CAMBIADO: Gris más oscuro */
   font-size: 0.85rem;
 }
 
@@ -95,13 +113,15 @@
 
 .fecha {
   font-weight: 500;
-  color: #2d3748;
+  color: #2b2b2b;
+  /* 🔧 CAMBIADO: Color negro-gris */
   font-size: 0.9rem;
   margin-bottom: 2px;
 }
 
 .hora {
-  color: #4a5568;
+  color: #555555;
+  /* 🔧 CAMBIADO: Gris más oscuro */
   font-size: 0.85rem;
 }
 
@@ -118,7 +138,8 @@
 
 .guests-count {
   font-weight: 600;
-  color: #4a5568;
+  color: #2b2b2b;
+  /* 🔧 CAMBIADO: Color negro-gris */
   font-size: 0.9rem;
 }
 
@@ -128,9 +149,10 @@
 }
 
 .expand-arrow {
-  color: #667eea;
+  color: #2b2b2b;
+  /* 🔧 CAMBIADO: Color negro-gris en lugar de #667eea */
   font-size: 1rem;
-  transition: transform 0.2s ease;
+  transition: transform 0.3s ease;
   display: inline-block;
 }
 
@@ -140,8 +162,10 @@
 
 /* Expanded Section Styles */
 .reserva-row-expanded {
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border-top: 1px solid rgba(43, 43, 43, 0.1);
+  /* 🔧 CAMBIADO: Borde negro-gris */
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%);
+  /* 🔧 CAMBIADO: Gradiente de fondo */
   animation: expandDown 0.3s ease-out;
 }
 
@@ -150,6 +174,7 @@
     opacity: 0;
     max-height: 0;
   }
+
   to {
     opacity: 1;
     max-height: 500px;
@@ -169,17 +194,24 @@
 
 .detail-section {
   background: white;
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  padding: 18px;
+  /* 🔧 AUMENTADO: Más padding */
+  border-radius: 12px;
+  /* 🔧 AUMENTADO: Más redondeado */
+  border: 1px solid rgba(43, 43, 43, 0.1);
+  /* 🔧 CAMBIADO: Borde negro-gris */
+  box-shadow: 0 2px 8px rgba(43, 43, 43, 0.05);
+  /* 🔧 NUEVO: Sombra sutil */
 }
 
 .detail-section h4 {
   margin: 0 0 12px 0;
-  color: #2d3748;
+  color: #2b2b2b;
+  /* 🔧 CAMBIADO: Color negro-gris */
   font-size: 1rem;
   font-weight: 600;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 2px solid rgba(43, 43, 43, 0.1);
+  /* 🔧 CAMBIADO: Borde negro-gris */
   padding-bottom: 8px;
 }
 
@@ -197,13 +229,15 @@
 
 .detail-item .label {
   font-weight: 500;
-  color: #4a5568;
+  color: #555555;
+  /* 🔧 CAMBIADO: Gris más oscuro */
   font-size: 0.9rem;
   min-width: 80px;
 }
 
 .detail-item .value {
-  color: #2d3748;
+  color: #2b2b2b;
+  /* 🔧 CAMBIADO: Color negro-gris */
   font-size: 0.9rem;
   text-align: right;
   font-weight: 500;
@@ -212,13 +246,18 @@
 .actions-section {
   background: white;
   padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  /* 🔧 AUMENTADO: Más redondeado */
+  border: 1px solid rgba(43, 43, 43, 0.1);
+  /* 🔧 CAMBIADO: Borde negro-gris */
+  box-shadow: 0 2px 8px rgba(43, 43, 43, 0.05);
+  /* 🔧 NUEVO: Sombra sutil */
 }
 
 .actions-section h4 {
   margin: 0 0 16px 0;
-  color: #2d3748;
+  color: #2b2b2b;
+  /* 🔧 CAMBIADO: Color negro-gris */
   font-size: 1rem;
   font-weight: 600;
 }
@@ -230,23 +269,32 @@
 }
 
 .btn-status {
-  padding: 8px 16px;
+  padding: 10px 18px;
+  /* 🔧 AUMENTADO: Más padding */
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
+  /* 🔧 AUMENTADO: Más redondeado */
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  /* 🔧 AUMENTADO: Transición más suave */
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
+  /* 🔧 AUMENTADO: Más espaciado */
   min-width: 120px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* 🔧 NUEVO: Sombra base */
 }
 
 .btn-status:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  /* 🔧 AUMENTADO: Más elevación */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  /* 🔧 AUMENTADO: Sombra más intensa */
 }
 
+/* 🔧 MANTENER: Estados de reserva con colores originales */
 .btn-pendiente {
   background: #FFA500;
   color: white;
@@ -295,8 +343,10 @@
 /* Status locked message */
 .status-locked-message {
   background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
+  border: 1px solid rgba(43, 43, 43, 0.1);
+  /* 🔧 CAMBIADO: Borde negro-gris */
+  border-radius: 8px;
+  /* 🔧 AUMENTADO: Más redondeado */
   padding: 12px;
   margin-top: 12px;
   display: flex;
@@ -306,16 +356,99 @@
 
 .status-locked-icon {
   font-size: 16px;
-  color: #6c757d;
+  color: #2b2b2b;
+  /* 🔧 CAMBIADO: Color negro-gris */
 }
 
 .status-locked-text {
   font-size: 12px;
-  color: #6c757d;
+  color: #555555;
+  /* 🔧 CAMBIADO: Gris más oscuro */
   font-style: italic;
 }
 
-/* Responsive Design */
+/* Cancel Section */
+.cancel-section {
+  background: white;
+  padding: 18px;
+  /* 🔧 AUMENTADO: Más padding */
+  border-radius: 12px;
+  /* 🔧 AUMENTADO: Más redondeado */
+  border: 1px solid #e9ecef;
+  border-left: 4px solid #dc3545;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1);
+  /* 🔧 NUEVO: Sombra roja sutil */
+}
+
+.cancel-section h4 {
+  margin: 0 0 12px 0;
+  color: #dc3545;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cancel-description {
+  margin-bottom: 12px;
+}
+
+.cancel-description p {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  color: #555555;
+  /* 🔧 CAMBIADO: Gris más oscuro */
+}
+
+.cancel-description p:first-child {
+  font-style: italic;
+}
+
+.cancel-description p:last-child {
+  font-weight: 500;
+  color: #2b2b2b;
+  /* 🔧 CAMBIADO: Color negro-gris */
+}
+
+.cancel-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-cancel-reserva {
+  padding: 10px 18px;
+  /* 🔧 AUMENTADO: Más padding */
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  /* 🔧 AUMENTADO: Más redondeado */
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  /* 🔧 AUMENTADO: Transición más suave */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-cancel-reserva:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  /* 🔧 AUMENTADO: Más elevación */
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  /* 🔧 AUMENTADO: Sombra más intensa */
+}
+
+.btn-cancel-reserva:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design - Mantener igual pero con colores actualizados */
 @media (max-width: 768px) {
   .reserva-row-compact {
     flex-direction: column;
@@ -388,71 +521,3 @@
     padding: 12px;
   }
 }
-
-/* Cancel Section */
-.cancel-section {
-  background: white;
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
-  border-left: 4px solid #dc3545;
-}
-
-.cancel-section h4 {
-  margin: 0 0 12px 0;
-  color: #dc3545;
-  font-size: 14px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.cancel-description {
-  margin-bottom: 12px;
-}
-
-.cancel-description p {
-  margin: 0 0 4px 0;
-  font-size: 12px;
-  color: #6c757d;
-}
-
-.cancel-description p:first-child {
-  font-style: italic;
-}
-
-.cancel-description p:last-child {
-  font-weight: 500;
-  color: #495057;
-}
-
-.cancel-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-cancel-reserva {
-  padding: 8px 16px;
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-cancel-reserva:hover {
-  background: #c82333;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
-}
-
-.btn-cancel-reserva:active {
-  transform: translateY(0);
-} 
