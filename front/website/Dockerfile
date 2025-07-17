@@ -10,7 +10,7 @@ RUN npm ci
 # Copiar el resto del código fuente
 COPY . .
 
-# Construir la aplicación
+# Construir la aplicación. Ya no necesitamos pasar variables de entorno.
 RUN npm run build
 
 # Etapa 2: Servir los archivos estáticos con Nginx
