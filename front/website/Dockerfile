@@ -10,7 +10,10 @@ RUN npm ci
 # Copiar el resto del código fuente
 COPY . .
 
-# Construir la aplicación. Ya no necesitamos pasar variables de entorno.
+# Limpiar y reinstalar dependencias para evitar bug de npm en ARM64
+RUN rm -rf node_modules package-lock.json && npm ci
+
+# Construir la aplicación
 RUN npm run build
 
 # Etapa 2: Servir los archivos estáticos con Nginx
