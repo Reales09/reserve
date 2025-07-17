@@ -11,7 +11,7 @@ RUN npm ci
 COPY . .
 
 # Limpiar y reinstalar dependencias para evitar bug de npm en ARM64
-RUN rm -rf node_modules package-lock.json && npm ci
+RUN rm -rf node_modules && npm ci
 
 # Construir la aplicación
 RUN npm run build
