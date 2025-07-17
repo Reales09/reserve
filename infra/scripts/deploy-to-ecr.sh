@@ -127,10 +127,10 @@ build_and_push_images() {
     
     # Lista de imágenes a construir y subir con sus tags
     declare -A images=(
-        ["backend"]="../back/central-reserve:docker/Dockerfile"
-        ["frontend"]="../front/reserve_app:Dockerfile"
-        ["website"]="../front/website:Dockerfile"
-        ["migrator"]="../back/dbpostgres:docker/Dockerfile"
+        ["backend"]="back/central-reserve:docker/Dockerfile"
+        ["frontend"]="front/reserve_app:Dockerfile"
+        ["website"]="front/website:Dockerfile"
+        ["migrator"]="back/dbpostgres:docker/Dockerfile"
     )
     
     for tag_name in "${!images[@]}"; do
