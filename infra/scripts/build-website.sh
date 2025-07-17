@@ -28,7 +28,7 @@ error() {
 
 # Configuración
 PROJECT_NAME="website"
-PROJECT_PATH="../front/website"
+PROJECT_PATH="../../front/website"
 DOCKERFILE_PATH="Dockerfile"
 IMAGE_NAME="reserve-website"
 TAG="${1:-latest}"

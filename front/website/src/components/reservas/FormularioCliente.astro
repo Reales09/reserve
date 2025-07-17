@@ -152,8 +152,13 @@ const { mostrar } = Astro.props;
         console.log("✅ Enviando al backend:", datosReserva);
 
         try {
+          // Usar la URL del servidor de producción o fallback a proxy local
+          const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? "/api/v1/reserves" 
+            : "http://3.220.183.29:3050/api/v1/reserves";
+            
           const response = await fetch(
-            "http://localhost:3050/api/v1/reserves",
+            apiUrl,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
