@@ -27,9 +27,25 @@ type IHolaMundo interface {
 	CancelReservation(ctx context.Context, id uint, reason string) (string, error)
 	UpdateReservation(ctx context.Context, id uint, tableID *uint, startAt *time.Time, endAt *time.Time, numberOfGuests *int) (string, error)
 	GetReservationStatuses(ctx context.Context) ([]ReservationStatus, error)
+
+	// Métodos de autenticación
+	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	GetUserRoles(ctx context.Context, userID uint) ([]Role, error)
+	GetRolePermissions(ctx context.Context, roleID uint) ([]Permission, error)
+	UpdateLastLogin(ctx context.Context, userID uint) error
 }
 
 type IEmailService interface {
 	SendReservationConfirmation(ctx context.Context, email, name string, reservation Reservation) error
 	SendReservationCancellation(ctx context.Context, email, name string, reservation Reservation) error
+}
+
+type IAuthService interface {
+	Login(ctx context.Context, email, password string) (*LoginResponse, error)
+	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	GetUserRoles(ctx context.Context, userID uint) ([]Role, error)
+	GetRolePermissions(ctx context.Context, roleID uint) ([]Permission, error)
+	ValidatePassword(hashedPassword, password string) error
+	GenerateToken(userID uint, email string, roles []string) (string, error)
+	UpdateLastLogin(ctx context.Context, userID uint) error
 }

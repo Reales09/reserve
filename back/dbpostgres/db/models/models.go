@@ -93,7 +93,7 @@ type User struct {
 	// Relación con restaurantes (un usuario puede estar en múltiples restaurantes)
 	Restaurants []Restaurant `gorm:"many2many:user_restaurants;"`
 
-	// Roles del usuario
+	// Roles del usuario (RELACIÓN MANY-TO-MANY)
 	Roles []Role `gorm:"many2many:user_roles;"`
 
 	// Relaciones existentes

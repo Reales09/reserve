@@ -51,12 +51,18 @@ func New(logger log.ILogger) (IConfig, error) {
 			Msg("Faltan variables de entorno obligatorias")
 		return nil, fmt.Errorf("faltan variables de entorno obligatorias: %v", missing)
 	}
+
+	// Log de debug para mostrar las variables cargadas
+	logger.Debug().Interface("loaded_env_vars", values).Msg("Variables de entorno cargadas")
+
 	return &config{values: values, logger: logger}, nil
 }
 
 // Get retorna el valor de una variable de entorno cargada
 func (c *config) Get(key string) string {
-	return c.values[key]
+	value := c.values[key]
+	c.logger.Debug().Str("key", key).Str("value", value).Msg("Obteniendo variable de entorno")
+	return value
 }
 
 // Config solo se usa internamente para reflexión
@@ -72,13 +78,15 @@ type Config struct {
 	// NatsPort   string `env:"NATS_PORT,required"`
 	// NatsUser   string `env:"NATS_USER,required"`
 	// NatsPass   string `env:"NATS_PASS,required"`
-	DbHost     string `env:"DB_HOST,required"`
-	DbUser     string `env:"DB_USER,required"`
-	DbPass     string `env:"DB_PASS,required"`
-	DbPort     string `env:"DB_PORT,required"`
-	DbName     string `env:"DB_NAME,required"`
-	DbLogLevel string `env:"DB_LOG_LEVEL,required"`
-	PGSSLMODE  string `env:"PGSSLMODE,required"`
+	DbHost           string `env:"DB_HOST,required"`
+	DbUser           string `env:"DB_USER,required"`
+	DbPass           string `env:"DB_PASS,required"`
+	DbPort           string `env:"DB_PORT,required"`
+	DbName           string `env:"DB_NAME,required"`
+	DbLogLevel       string `env:"DB_LOG_LEVEL,required"`
+	PGSSLMODE        string `env:"PGSSLMODE,required"`
+	UserPassDefault  string `env:"USER_PASS_DEFAULT,required"`
+	EmailUserDefault string `env:"EMAIL_USER_DEFAULT,required"`
 	// S3Bucket   string `env:"S3_BUCKET,required"`
 	// S3Region   string `env:"S3_REGION,required"`
 	// S3Key      string `env:"S3_KEY,required"`

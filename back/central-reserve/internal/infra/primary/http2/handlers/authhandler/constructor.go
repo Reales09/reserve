@@ -1,0 +1,26 @@
+package authhandler
+
+import (
+	"central_reserve/internal/app/usecaseauth"
+	"central_reserve/internal/pkg/log"
+
+	"github.com/gin-gonic/gin"
+)
+
+// IAuthHandler define la interfaz para el handler de autenticación
+type IAuthHandler interface {
+	LoginHandler(c *gin.Context)
+}
+
+type AuthHandler struct {
+	usecase usecaseauth.IUseCaseAuth
+	logger  log.ILogger
+}
+
+// New crea una nueva instancia del handler de autenticación
+func New(usecase usecaseauth.IUseCaseAuth, logger log.ILogger) IAuthHandler {
+	return &AuthHandler{
+		usecase: usecase,
+		logger:  logger,
+	}
+}

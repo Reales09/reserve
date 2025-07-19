@@ -1,10 +1,12 @@
 package server
 
 import (
+	"central_reserve/internal/app/usecaseauth"
 	"central_reserve/internal/app/usecaseclient"
 	"central_reserve/internal/app/usecasereserve"
 	"central_reserve/internal/app/usecasetables"
 	"central_reserve/internal/infra/primary/http2"
+	"central_reserve/internal/infra/primary/http2/handlers/authhandler"
 	"central_reserve/internal/infra/primary/http2/handlers/clienthandler"
 	"central_reserve/internal/infra/primary/http2/handlers/reservehandler"
 	"central_reserve/internal/infra/primary/http2/handlers/tablehandler"
@@ -14,6 +16,7 @@ import (
 	"central_reserve/internal/infra/secundary/repository/db"
 	"central_reserve/internal/infra/secundary/storage/s3"
 	"central_reserve/internal/pkg/env"
+	"central_reserve/internal/pkg/jwt"
 	"central_reserve/internal/pkg/log"
 	"context"
 	"fmt"
@@ -67,17 +70,28 @@ func setupDependencies(database db.IDatabase, logger log.ILogger, environment en
 	// Servicios
 	emailService := email.New(environment, logger)
 
+	// Servicio JWT
+	jwtSecret := environment.Get("JWT_SECRET")
+	if jwtSecret == "" {
+		logger.Warn().Msg("JWT_SECRET no configurado, usando valor por defecto")
+		jwtSecret = "default-secret-key-change-in-production"
+	}
+	jwtService := jwt.New(jwtSecret)
+
 	// Casos de uso por dominio
+	authUseCase := usecaseauth.NewAuthUseCase(repo, jwtService, logger)
 	clientUseCase := usecaseclient.NewClientUseCase(repo, logger)
 	tableUseCase := usecasetables.NewTableUseCase(repo, logger)
 	reserveUseCase := usecasereserve.NewReserveUseCase(repo, emailService, logger)
 
 	// Handlers por dominio
+	authHandler := authhandler.New(authUseCase, logger)
 	clientHandler := clienthandler.New(clientUseCase, logger)
 	tableHandler := tablehandler.New(tableUseCase, logger)
 	reserveHandler := reservehandler.New(reserveUseCase, logger)
 
 	return &http2.Handlers{
+		Auth:    authHandler,
 		Client:  clientHandler,
 		Table:   tableHandler,
 		Reserve: reserveHandler,

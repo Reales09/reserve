@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"dbpostgres/db"
-	"dbpostgres/db/models"
+	"dbpostgres/db/migrate"
 	"dbpostgres/pkg/env"
 	"dbpostgres/pkg/log"
 	"time"
@@ -39,29 +39,10 @@ func main() {
 		}
 	}()
 
-	// 4. Ejecutar AutoMigrate
-	logger.Info().Msg("Ejecutando migraciones de la base de datos...")
-	// Usamos un contexto de background para la migración que podría tardar.
-	err = database.Conn(context.Background()).AutoMigrate(
-		&models.Restaurant{},
-		&models.User{},
-		&models.Role{},
-		&models.Permission{},
-		&models.RestaurantStaff{},
-		&models.Client{},
-		&models.Table{},
-		&models.Reservation{},
-		&models.ReservationStatus{},
-		&models.ReservationStatusHistory{},
-	)
-	if err != nil {
-		logger.Fatal().Err(err).Msg("Falló la migración de la base de datos")
-	}
-
-	// 5. Inicializar datos del sistema (roles y permisos)
-	logger.Info().Msg("Inicializando datos del sistema...")
-	if err := db.MigrateDB(database.Conn(context.Background())); err != nil {
-		logger.Fatal().Err(err).Msg("Falló la inicialización de datos del sistema")
+	// 4. Ejecutar migraciones e inicializar datos del sistema
+	logger.Info().Msg("Ejecutando migraciones e inicializando datos del sistema...")
+	if err := migrate.MigrateDB(database.Conn(context.Background()), logger, config); err != nil {
+		logger.Fatal().Err(err).Msg("Falló la migración e inicialización de datos del sistema")
 	}
 
 	logger.Info().Msg("Migración e inicialización completadas exitosamente.")

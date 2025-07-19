@@ -2,6 +2,7 @@ package http2
 
 import (
 	"central_reserve/internal/infra/primary/http2/docs"
+	"central_reserve/internal/infra/primary/http2/handlers/authhandler"
 	"central_reserve/internal/infra/primary/http2/handlers/clienthandler"
 	"central_reserve/internal/infra/primary/http2/handlers/reservehandler"
 	"central_reserve/internal/infra/primary/http2/handlers/tablehandler"
@@ -21,6 +22,7 @@ import (
 )
 
 type Handlers struct {
+	Auth    authhandler.IAuthHandler
 	Client  clienthandler.IClientHandler
 	Table   tablehandler.ITableHandler
 	Reserve reservehandler.IReserveHandler
@@ -97,6 +99,7 @@ func (s *HTTPServer) Routers() {
 	v1Group := s.router.Group("/api/v1")
 
 	// Registrar rutas por dominio
+	authhandler.SetupRoutes(s.router, s.handlers.Auth)
 	clienthandler.RegisterRoutes(v1Group, s.handlers.Client)
 	tablehandler.RegisterRoutes(v1Group, s.handlers.Table)
 	reservehandler.RegisterRoutes(v1Group, s.handlers.Reserve)

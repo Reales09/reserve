@@ -22,10 +22,20 @@ definitions:
     - phone
     - restaurant_id
     type: object
+  request.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
   request.Reservation:
     properties:
       dni:
-        type: integer
+        type: string
       email:
         type: string
       end_at:
@@ -93,6 +103,93 @@ definitions:
       restaurant_id:
         type: integer
     type: object
+  response.LoginBadRequestResponse:
+    properties:
+      details:
+        type: string
+      error:
+        type: string
+    type: object
+  response.LoginErrorResponse:
+    properties:
+      details:
+        type: string
+      error:
+        type: string
+    type: object
+  response.LoginResponse:
+    properties:
+      is_super:
+        type: boolean
+      permissions:
+        items:
+          $ref: '#/definitions/response.PermissionInfo'
+        type: array
+      roles:
+        items:
+          $ref: '#/definitions/response.RoleInfo'
+        type: array
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/response.UserInfo'
+    type: object
+  response.LoginSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.LoginResponse'
+      success:
+        type: boolean
+    type: object
+  response.PermissionInfo:
+    properties:
+      action:
+        type: string
+      code:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      resource:
+        type: string
+      scope:
+        type: string
+    type: object
+  response.RoleInfo:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      level:
+        type: integer
+      name:
+        type: string
+      scope:
+        type: string
+    type: object
+  response.UserInfo:
+    properties:
+      avatar_url:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      last_login_at:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -106,6 +203,45 @@ info:
   title: Restaurant Reservation API
   version: "1.0"
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Autentica un usuario con email y contraseña, retornando información
+        del usuario, roles, permisos y token de acceso
+      parameters:
+      - description: Credenciales de login
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login exitoso
+          schema:
+            $ref: '#/definitions/response.LoginSuccessResponse'
+        "400":
+          description: Datos de entrada inválidos
+          schema:
+            $ref: '#/definitions/response.LoginBadRequestResponse'
+        "401":
+          description: Credenciales inválidas
+          schema:
+            $ref: '#/definitions/response.LoginErrorResponse'
+        "403":
+          description: Usuario inactivo
+          schema:
+            $ref: '#/definitions/response.LoginErrorResponse'
+        "500":
+          description: Error interno del servidor
+          schema:
+            $ref: '#/definitions/response.LoginErrorResponse'
+      summary: Autenticar usuario
+      tags:
+      - Auth
   /clients:
     get:
       consumes:

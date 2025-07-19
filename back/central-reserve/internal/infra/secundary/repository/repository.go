@@ -689,3 +689,65 @@ func (r Repository) GetReservationStatusHistory(ctx context.Context, reservation
 
 	return history, nil
 }
+
+// =============================================================================
+// MÉTODOS DE AUTENTICACIÓN
+// =============================================================================
+
+// GetUserByEmail obtiene un usuario por su email
+func (r Repository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
+	var user domain.User
+	if err := r.database.Conn(ctx).Table("user").Where("email = ?", email).First(&user).Error; err != nil {
+		r.logger.Error().Str("email", email).Msg("Error al obtener usuario por email")
+		return nil, err
+	}
+	return &user, nil
+}
+
+// GetUserRoles obtiene los roles de un usuario
+func (r Repository) GetUserRoles(ctx context.Context, userID uint) ([]domain.Role, error) {
+	var roles []domain.Role
+	query := `
+		SELECT r.* FROM role r
+		INNER JOIN user_roles ur ON r.id = ur.role_id
+		WHERE ur.user_id = ?
+	`
+	r.logger.Debug().Uint("user_id", userID).Str("query", query).Msg("Ejecutando consulta de roles")
+
+	if err := r.database.Conn(ctx).Raw(query, userID).Scan(&roles).Error; err != nil {
+		r.logger.Error().Uint("user_id", userID).Msg("Error al obtener roles del usuario")
+		return nil, err
+	}
+
+	r.logger.Debug().Uint("user_id", userID).Int("roles_count", len(roles)).Msg("Roles encontrados")
+	return roles, nil
+}
+
+// GetRolePermissions obtiene los permisos de un rol
+func (r Repository) GetRolePermissions(ctx context.Context, roleID uint) ([]domain.Permission, error) {
+	var permissions []domain.Permission
+	query := `
+		SELECT p.* FROM permission p
+		INNER JOIN role_permissions rp ON p.id = rp.permission_id
+		WHERE rp.role_id = ?
+	`
+	r.logger.Debug().Uint("role_id", roleID).Str("query", query).Msg("Ejecutando consulta de permisos")
+
+	if err := r.database.Conn(ctx).Raw(query, roleID).Scan(&permissions).Error; err != nil {
+		r.logger.Error().Uint("role_id", roleID).Msg("Error al obtener permisos del rol")
+		return nil, err
+	}
+
+	r.logger.Debug().Uint("role_id", roleID).Int("permissions_count", len(permissions)).Msg("Permisos encontrados")
+	return permissions, nil
+}
+
+// UpdateLastLogin actualiza el último login del usuario
+func (r Repository) UpdateLastLogin(ctx context.Context, userID uint) error {
+	now := time.Now()
+	if err := r.database.Conn(ctx).Table("user").Where("id = ?", userID).Update("last_login_at", now).Error; err != nil {
+		r.logger.Error().Uint("user_id", userID).Msg("Error al actualizar último login")
+		return err
+	}
+	return nil
+}
