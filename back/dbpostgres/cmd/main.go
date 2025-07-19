@@ -45,6 +45,8 @@ func main() {
 	err = database.Conn(context.Background()).AutoMigrate(
 		&models.Restaurant{},
 		&models.User{},
+		&models.Role{},
+		&models.Permission{},
 		&models.RestaurantStaff{},
 		&models.Client{},
 		&models.Table{},
@@ -56,5 +58,11 @@ func main() {
 		logger.Fatal().Err(err).Msg("Falló la migración de la base de datos")
 	}
 
-	logger.Info().Msg("Migración completada exitosamente.")
+	// 5. Inicializar datos del sistema (roles y permisos)
+	logger.Info().Msg("Inicializando datos del sistema...")
+	if err := db.MigrateDB(database.Conn(context.Background())); err != nil {
+		logger.Fatal().Err(err).Msg("Falló la inicialización de datos del sistema")
+	}
+
+	logger.Info().Msg("Migración e inicialización completadas exitosamente.")
 }
