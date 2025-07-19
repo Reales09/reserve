@@ -21,14 +21,14 @@ const ReservaFilters = ({ onApplyFilters, onClearFilters, loading }) => {
   // Helper function to convert local date to UTC with proper timezone handling
   const convertLocalDateToUTC = (dateString, isEndDate = false) => {
     if (!dateString) return '';
-    
+
     try {
       // Parse the date string (YYYY-MM-DD format from input)
       const [year, month, day] = dateString.split('-').map(num => parseInt(num, 10));
-      
+
       // Create date object in local timezone
       const localDate = new Date(year, month - 1, day); // month is 0-indexed
-      
+
       if (isEndDate) {
         // For end date: set to 23:59:59.999 local time
         localDate.setHours(23, 59, 59, 999);
@@ -36,12 +36,12 @@ const ReservaFilters = ({ onApplyFilters, onClearFilters, loading }) => {
         // For start date: set to 00:00:00.000 local time
         localDate.setHours(0, 0, 0, 0);
       }
-      
+
       // Convert to UTC ISO string
       const utcString = localDate.toISOString();
-      
+
       console.log(`Date conversion: ${dateString} (${isEndDate ? 'end' : 'start'}) -> Local: ${localDate.toString()} -> UTC: ${utcString}`);
-      
+
       return utcString;
     } catch (error) {
       console.error('Error converting date:', error);
@@ -91,7 +91,7 @@ const ReservaFilters = ({ onApplyFilters, onClearFilters, loading }) => {
 
   const handleQuickFilter = (filterType, value) => {
     let newFilters = { ...filters };
-    
+
     if (filterType === 'status') {
       newFilters.status_id = value;
     } else if (filterType === 'today') {
@@ -99,9 +99,9 @@ const ReservaFilters = ({ onApplyFilters, onClearFilters, loading }) => {
       newFilters.start_date = today;
       newFilters.end_date = today;
     }
-    
+
     setFilters(newFilters);
-    
+
     // Apply filters immediately with proper date conversion
     const activeFilters = Object.entries(newFilters).reduce((acc, [key, val]) => {
       if (val && val.trim() !== '') {
@@ -115,7 +115,7 @@ const ReservaFilters = ({ onApplyFilters, onClearFilters, loading }) => {
       }
       return acc;
     }, {});
-    
+
     console.log('Quick filter applied:', activeFilters);
     onApplyFilters(activeFilters);
   };
@@ -123,7 +123,7 @@ const ReservaFilters = ({ onApplyFilters, onClearFilters, loading }) => {
   return (
     <div className="reserva-filters">
       <h3>🔍 Filtros de Búsqueda</h3>
-      
+
       <div className="filters-grid">
         <div className="filter-group">
           <label htmlFor="status_id">Estado:</label>

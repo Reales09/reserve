@@ -1,20 +1,29 @@
 // Presentation - CreateReservaModal Component
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './CreateReservaModal.css';
 
-const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
+const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading, initialDate }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     dni: '',
-    start_at: '',
+    start_at: initialDate || '',
     end_at: '',
     number_of_guests: 1,
     restaurant_id: 1
   });
 
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (initialDate) {
+      setFormData(prev => ({
+        ...prev,
+        start_at: initialDate
+      }));
+    }
+  }, [initialDate]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -178,7 +187,7 @@ const CreateReservaModal = ({ isOpen, onClose, onSubmit, loading }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="phone"> Teléfono *</label>
+              <label htmlFor="phone">📱 Teléfono *</label>
               <input
                 type="tel"
                 id="phone"
