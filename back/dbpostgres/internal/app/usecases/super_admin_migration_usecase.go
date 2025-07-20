@@ -59,8 +59,8 @@ func (uc *SuperAdminMigrationUseCase) Execute() error {
 
 	superAdmin := models.User{
 		Name:     "Super Administrador",
-		Email:    uc.config.Get("SUPER_ADMIN_EMAIL"),
-		Password: uc.config.Get("SUPER_ADMIN_PASSWORD"),
+		Email:    uc.config.Get("EMAIL_USER_DEFAULT"),
+		Password: uc.config.Get("USER_PASS_DEFAULT"),
 		IsActive: true,
 	}
 

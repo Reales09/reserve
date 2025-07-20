@@ -1,52 +1,62 @@
 package usecasereserve
 
 import (
-	"central_reserve/internal/domain"
+	"central_reserve/internal/domain/dtos"
+	"central_reserve/internal/domain/entities"
 	"context"
+	"fmt"
 )
 
+// CancelReservation cancela una reserva existente
 func (u *ReserveUseCase) CancelReservation(ctx context.Context, id uint, reason string) (string, error) {
-	// Primero obtener los detalles de la reserva para el email
-	reservationDetail, err := u.repository.GetReserveByID(ctx, id)
+	u.log.Info().Uint("reservation_id", id).Msg("Iniciando cancelación de reserva")
+
+	// Obtener la reserva actual
+	reservation, err := u.repository.GetReserveByID(ctx, id)
 	if err != nil {
-		return "", err
+		u.log.Error().Err(err).Uint("reservation_id", id).Msg("Error al obtener reserva")
+		return "", fmt.Errorf("error al obtener reserva: %w", err)
 	}
 
-	response, err := u.repository.CancelReservation(ctx, id, reason)
+	if reservation == nil {
+		u.log.Error().Uint("reservation_id", id).Msg("Reserva no encontrada")
+		return "", fmt.Errorf("reserva no encontrada")
+	}
+
+	// Convertir DTO a entidad para la cancelación
+	reservationEntity := u.convertDTOToReservation(reservation)
+
+	// Cancelar la reserva
+	result, err := u.repository.CancelReservation(ctx, id, reason)
 	if err != nil {
-		return "", err
+		u.log.Error().Err(err).Uint("reservation_id", id).Msg("Error al cancelar reserva")
+		return "", fmt.Errorf("error al cancelar reserva: %w", err)
 	}
 
-	if response == "" {
-		return "", nil // Reserva no encontrada
-	}
-
-	// Enviar email de cancelación (en background para no bloquear la respuesta)
+	// Enviar email de cancelación (en background)
 	go func() {
-		// Convertir el DTO a la entidad Reservation para el email
-		reservation := u.convertDTOToReservation(reservationDetail)
-		if err := u.emailService.SendReservationCancellation(ctx, reservationDetail.ClienteEmail, reservationDetail.ClienteNombre, reservation); err != nil {
-			u.log.Error(ctx).Err(err).Str("email", reservationDetail.ClienteEmail).Msg("Error enviando email de cancelación")
+		if err := u.emailService.SendReservationCancellation(ctx, reservation.ClienteEmail, reservation.ClienteNombre, reservationEntity); err != nil {
+			u.log.Error().Err(err).Str("email", reservation.ClienteEmail).Msg("Error enviando email de cancelación")
 		} else {
-			u.log.Info(ctx).Str("email", reservationDetail.ClienteEmail).Msg("Email de cancelación enviado exitosamente")
+			u.log.Info().Str("email", reservation.ClienteEmail).Msg("Email de cancelación enviado exitosamente")
 		}
 	}()
 
-	return response, nil
+	u.log.Info().Uint("reservation_id", id).Msg("Reserva cancelada exitosamente")
+
+	return result, nil
 }
 
-// Función auxiliar para convertir DTO a entidad
-func (u *ReserveUseCase) convertDTOToReservation(dto *domain.ReserveDetailDTO) domain.Reservation {
-	return domain.Reservation{
+// convertDTOToReservation convierte un DTO de reserva a entidad
+func (u *ReserveUseCase) convertDTOToReservation(dto *dtos.ReserveDetailDTO) entities.Reservation {
+	return entities.Reservation{
 		Id:             dto.ReservaID,
-		RestaurantID:   dto.RestauranteID,
+		BusinessID:     dto.NegocioID,
 		TableID:        dto.MesaID,
 		ClientID:       dto.ClienteID,
 		StartAt:        dto.StartAt,
 		EndAt:          dto.EndAt,
 		NumberOfGuests: dto.NumberOfGuests,
 		StatusID:       0, // No es relevante para el email
-		CreatedAt:      dto.ReservaCreada,
-		UpdatedAt:      dto.ReservaActualizada,
 	}
 }

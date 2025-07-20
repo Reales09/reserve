@@ -1,12 +1,12 @@
 package mapper
 
 import (
-	"central_reserve/internal/domain"
+	"central_reserve/internal/domain/dtos"
 	"central_reserve/internal/infra/primary/http2/handlers/authhandler/response"
 )
 
-// ToLoginResponse convierte el dominio LoginResponse a response.LoginResponse
-func ToLoginResponse(domainResponse *domain.LoginResponse) *response.LoginResponse {
+// ToLoginResponse convierte el dominio LoginResponse a response.LoginResponse (simplificado)
+func ToLoginResponse(domainResponse *dtos.LoginResponse) *response.LoginResponse {
 	if domainResponse == nil {
 		return nil
 	}
@@ -21,15 +21,25 @@ func ToLoginResponse(domainResponse *domain.LoginResponse) *response.LoginRespon
 			IsActive:    domainResponse.User.IsActive,
 			LastLoginAt: domainResponse.User.LastLoginAt,
 		},
-		Token:       domainResponse.Token,
+		Token: domainResponse.Token,
+	}
+}
+
+// ToUserRolesPermissionsResponse convierte el dominio UserRolesPermissionsResponse a response.UserRolesPermissionsResponse
+func ToUserRolesPermissionsResponse(domainResponse *dtos.UserRolesPermissionsResponse) response.UserRolesPermissionsResponse {
+	if domainResponse == nil {
+		return response.UserRolesPermissionsResponse{}
+	}
+
+	return response.UserRolesPermissionsResponse{
 		IsSuper:     domainResponse.IsSuper,
 		Roles:       toRoleInfoSlice(domainResponse.Roles),
 		Permissions: toPermissionInfoSlice(domainResponse.Permissions),
 	}
 }
 
-// toRoleInfoSlice convierte un slice de domain.RoleInfo a response.RoleInfo
-func toRoleInfoSlice(domainRoles []domain.RoleInfo) []response.RoleInfo {
+// toRoleInfoSlice convierte un slice de dtos.RoleInfo a response.RoleInfo
+func toRoleInfoSlice(domainRoles []dtos.RoleInfo) []response.RoleInfo {
 	if domainRoles == nil {
 		return nil
 	}
@@ -48,8 +58,8 @@ func toRoleInfoSlice(domainRoles []domain.RoleInfo) []response.RoleInfo {
 	return roles
 }
 
-// toPermissionInfoSlice convierte un slice de domain.PermissionInfo a response.PermissionInfo
-func toPermissionInfoSlice(domainPermissions []domain.PermissionInfo) []response.PermissionInfo {
+// toPermissionInfoSlice convierte un slice de dtos.PermissionInfo a response.PermissionInfo
+func toPermissionInfoSlice(domainPermissions []dtos.PermissionInfo) []response.PermissionInfo {
 	if domainPermissions == nil {
 		return nil
 	}

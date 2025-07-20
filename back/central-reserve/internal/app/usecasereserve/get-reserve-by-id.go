@@ -1,14 +1,16 @@
 package usecasereserve
 
 import (
-	"central_reserve/internal/domain"
+	"central_reserve/internal/domain/dtos"
 	"context"
+	"fmt"
 )
 
-func (u *ReserveUseCase) GetReserveByID(ctx context.Context, id uint) (*domain.ReserveDetailDTO, error) {
-	reserve, err := u.repository.GetReserveByID(ctx, id)
+// GetReserveByID obtiene una reserva por su ID
+func (u *ReserveUseCase) GetReserveByID(ctx context.Context, id uint) (*dtos.ReserveDetailDTO, error) {
+	reservation, err := u.repository.GetReserveByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error al obtener reserva: %w", err)
 	}
-	return reserve, nil
+	return reservation, nil
 }

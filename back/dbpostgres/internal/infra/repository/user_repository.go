@@ -5,6 +5,7 @@ import (
 	"dbpostgres/internal/infra/models"
 	"dbpostgres/pkg/log"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -24,10 +25,22 @@ func NewUserRepository(db *gorm.DB, logger log.ILogger) domain.UserRepository {
 
 // Create crea un nuevo usuario
 func (r *userRepository) Create(user *models.User) error {
+	// Cifrar la contraseña antes de guardar
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		r.logger.Error().Err(err).Str("email", user.Email).Msg("Error al cifrar contraseña")
+		return err
+	}
+
+	// Reemplazar la contraseña en texto plano con la cifrada
+	user.Password = string(hashedPassword)
+
 	if err := r.db.Create(user).Error; err != nil {
 		r.logger.Error().Err(err).Str("email", user.Email).Msg("Error al crear usuario")
 		return err
 	}
+
+	r.logger.Info().Str("email", user.Email).Uint("user_id", user.ID).Msg("Usuario creado exitosamente con contraseña cifrada")
 	return nil
 }
 
@@ -102,4 +115,9 @@ func (r *userRepository) UserExists() (bool, error) {
 		return false, err
 	}
 	return count > 0, nil
+}
+
+// ValidatePassword verifica si una contraseña coincide con el hash almacenado
+func (r *userRepository) ValidatePassword(hashedPassword, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

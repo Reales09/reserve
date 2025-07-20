@@ -1,22 +1,24 @@
 package mapper
 
 import (
-	"central_reserve/internal/domain"
+	"central_reserve/internal/domain/dtos"
+	"central_reserve/internal/domain/entities"
 	"central_reserve/internal/infra/primary/http2/handlers/reservehandler/request"
 	"central_reserve/internal/infra/primary/http2/handlers/reservehandler/response"
 )
 
-func ReserveToDomain(r request.Reservation) domain.Reservation {
-	return domain.Reservation{
-		RestaurantID:   r.RestaurantID,
+// ReserveToDomain convierte un request.Reservation a entities.Reservation
+func ReserveToDomain(r request.Reservation) entities.Reservation {
+	return entities.Reservation{
+		BusinessID:     r.BusinessID,
 		StartAt:        r.StartAt,
 		EndAt:          r.EndAt,
 		NumberOfGuests: r.NumberOfGuests,
-		StatusID:       1,
 	}
 }
 
-func MapToReserveDetail(dto domain.ReserveDetailDTO) response.ReserveDetail {
+// MapToReserveDetail convierte un dtos.ReserveDetailDTO a response.ReserveDetail
+func MapToReserveDetail(dto dtos.ReserveDetailDTO) response.ReserveDetail {
 	return response.ReserveDetail{
 		ReservaID:          dto.ReservaID,
 		StartAt:            dto.StartAt,
@@ -36,21 +38,22 @@ func MapToReserveDetail(dto domain.ReserveDetailDTO) response.ReserveDetail {
 			}
 			return ""
 		}(),
-		MesaID:               dto.MesaID,
-		MesaNumero:           dto.MesaNumero,
-		MesaCapacidad:        dto.MesaCapacidad,
-		RestauranteID:        dto.RestauranteID,
-		RestauranteNombre:    dto.RestauranteNombre,
-		RestauranteCodigo:    dto.RestauranteCodigo,
-		RestauranteDireccion: dto.RestauranteDireccion,
-		UsuarioID:            dto.UsuarioID,
-		UsuarioNombre:        dto.UsuarioNombre,
-		UsuarioEmail:         dto.UsuarioEmail,
-		StatusHistory:        MapStatusHistoryList(dto.StatusHistory),
+		MesaID:           dto.MesaID,
+		MesaNumero:       dto.MesaNumero,
+		MesaCapacidad:    dto.MesaCapacidad,
+		NegocioID:        dto.NegocioID,
+		NegocioNombre:    dto.NegocioNombre,
+		NegocioCodigo:    dto.NegocioCodigo,
+		NegocioDireccion: dto.NegocioDireccion,
+		UsuarioID:        dto.UsuarioID,
+		UsuarioNombre:    dto.UsuarioNombre,
+		UsuarioEmail:     dto.UsuarioEmail,
+		StatusHistory:    MapStatusHistoryList(dto.StatusHistory),
 	}
 }
 
-func MapStatusHistory(history domain.ReservationStatusHistory) response.StatusHistoryResponse {
+// MapStatusHistory convierte un entities.ReservationStatusHistory a response.StatusHistoryResponse
+func MapStatusHistory(history entities.ReservationStatusHistory) response.StatusHistoryResponse {
 	return response.StatusHistoryResponse{
 		ID:              history.ID,
 		StatusID:        history.StatusID,
@@ -62,18 +65,28 @@ func MapStatusHistory(history domain.ReservationStatusHistory) response.StatusHi
 	}
 }
 
-func MapStatusHistoryList(historyList []domain.ReservationStatusHistory) []response.StatusHistoryResponse {
-	var responseList []response.StatusHistoryResponse
-	for _, history := range historyList {
-		responseList = append(responseList, MapStatusHistory(history))
+// MapStatusHistoryList convierte un slice de entities.ReservationStatusHistory a slice de response.StatusHistoryResponse
+func MapStatusHistoryList(historyList []entities.ReservationStatusHistory) []response.StatusHistoryResponse {
+	if historyList == nil {
+		return nil
+	}
+
+	responseList := make([]response.StatusHistoryResponse, len(historyList))
+	for i, history := range historyList {
+		responseList[i] = MapStatusHistory(history)
 	}
 	return responseList
 }
 
-func MapToReserveDetailList(dtoList []domain.ReserveDetailDTO) []response.ReserveDetail {
-	var reserves []response.ReserveDetail
-	for _, dto := range dtoList {
-		reserves = append(reserves, MapToReserveDetail(dto))
+// MapToReserveDetailList convierte un slice de dtos.ReserveDetailDTO a slice de response.ReserveDetail
+func MapToReserveDetailList(dtoList []dtos.ReserveDetailDTO) []response.ReserveDetail {
+	if dtoList == nil {
+		return nil
 	}
-	return reserves
+
+	responseList := make([]response.ReserveDetail, len(dtoList))
+	for i, dto := range dtoList {
+		responseList[i] = MapToReserveDetail(dto)
+	}
+	return responseList
 }

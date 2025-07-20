@@ -1,17 +1,25 @@
 package usecaseclient
 
 import (
-	"central_reserve/internal/domain"
+	"central_reserve/internal/domain/entities"
 	"context"
+	"fmt"
 )
 
-func (u *ClientUseCase) GetClientByID(ctx context.Context, id uint) (*domain.Client, error) {
-	response, err := u.repository.GetClientByID(ctx, id)
+// GetClientByID obtiene un cliente por su ID
+func (u *ClientUseCase) GetClientByID(ctx context.Context, id uint) (*entities.Client, error) {
+	client, err := u.repository.GetClientByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error al obtener cliente: %w", err)
 	}
-	return response, nil
+	return client, nil
 }
-func (u *ClientUseCase) GetClientByEmail(ctx context.Context, email string) (*domain.Client, error) {
-	return u.repository.GetClientByEmail(ctx, email)
+
+// GetClientByEmail obtiene un cliente por su email
+func (u *ClientUseCase) GetClientByEmail(ctx context.Context, email string) (*entities.Client, error) {
+	client, err := u.repository.GetClientByEmail(ctx, email)
+	if err != nil {
+		return nil, fmt.Errorf("error al obtener cliente por email: %w", err)
+	}
+	return client, nil
 }

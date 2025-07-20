@@ -64,11 +64,19 @@ func InitServer(ctx context.Context) (*AppServices, error) {
 }
 
 func setupDependencies(database db.IDatabase, logger log.ILogger, environment env.IConfig) *http2.Handlers {
-	// Repository compartido
-	repo := repository.New(database, logger)
+	// Repositorios base por dominio
+	clientRepo := repository.NewClientRepository(database, logger)
+	tableRepo := repository.NewTableRepository(database, logger)
+	authRepo := repository.NewAuthRepository(database, logger)
+
+	// Repositorios específicos para casos de uso
+	clientUseCaseRepo := clientRepo // IClientRepository implementa IClientUseCaseRepository
+	tableUseCaseRepo := tableRepo   // ITableRepository implementa ITableUseCaseRepository
+	authUseCaseRepo := authRepo     // IAuthRepository implementa IAuthUseCaseRepository
+	reserveUseCaseRepo := repository.NewReserveUseCaseRepository(database, logger)
 
 	// Servicios
-	emailService := email.New(environment, logger)
+	emailService := email.NewEmailService()
 
 	// Servicio JWT
 	jwtSecret := environment.Get("JWT_SECRET")
@@ -79,10 +87,10 @@ func setupDependencies(database db.IDatabase, logger log.ILogger, environment en
 	jwtService := jwt.New(jwtSecret)
 
 	// Casos de uso por dominio
-	authUseCase := usecaseauth.NewAuthUseCase(repo, jwtService, logger)
-	clientUseCase := usecaseclient.NewClientUseCase(repo, logger)
-	tableUseCase := usecasetables.NewTableUseCase(repo, logger)
-	reserveUseCase := usecasereserve.NewReserveUseCase(repo, emailService, logger)
+	authUseCase := usecaseauth.NewAuthUseCase(authUseCaseRepo, jwtService, logger)
+	clientUseCase := usecaseclient.NewClientUseCase(clientUseCaseRepo)
+	tableUseCase := usecasetables.NewTableUseCase(tableUseCaseRepo)
+	reserveUseCase := usecasereserve.NewReserveUseCase(reserveUseCaseRepo, emailService, logger)
 
 	// Handlers por dominio
 	authHandler := authhandler.New(authUseCase, logger)

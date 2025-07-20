@@ -1,15 +1,15 @@
 package usecaseauth
 
 import (
-	"central_reserve/internal/domain"
+	"central_reserve/internal/domain/dtos"
 	"context"
 	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Login maneja la lógica de autenticación del usuario
-func (uc *AuthUseCase) Login(ctx context.Context, request domain.LoginRequest) (*domain.LoginResponse, error) {
+// Login maneja la lógica de autenticación del usuario (simplificado)
+func (uc *AuthUseCase) Login(ctx context.Context, request dtos.LoginRequest) (*dtos.LoginResponse, error) {
 	uc.log.Info().Str("email", request.Email).Msg("Iniciando proceso de login")
 
 	// Validar que el email y contraseña no estén vacíos
@@ -42,34 +42,14 @@ func (uc *AuthUseCase) Login(ctx context.Context, request domain.LoginRequest) (
 		return nil, fmt.Errorf("credenciales inválidas")
 	}
 
-	// Obtener roles del usuario
+	// Obtener roles del usuario para el token
 	roles, err := uc.repository.GetUserRoles(ctx, user.ID)
 	if err != nil {
 		uc.log.Error().Err(err).Uint("user_id", user.ID).Msg("Error al obtener roles del usuario")
 		return nil, fmt.Errorf("error interno del servidor")
 	}
 
-	// Obtener permisos de todos los roles del usuario
-	var allPermissions []domain.Permission
-	for _, role := range roles {
-		permissions, err := uc.repository.GetRolePermissions(ctx, role.ID)
-		if err != nil {
-			uc.log.Error().Err(err).Uint("role_id", role.ID).Msg("Error al obtener permisos del rol")
-			continue
-		}
-		allPermissions = append(allPermissions, permissions...)
-	}
-
-	// Verificar si es super admin (tiene rol super_admin)
-	isSuper := false
-	for _, role := range roles {
-		if role.Code == "super_admin" {
-			isSuper = true
-			break
-		}
-	}
-
-	// Generar token JWT real
+	// Generar token JWT
 	roleCodes := make([]string, len(roles))
 	for i, role := range roles {
 		roleCodes[i] = role.Code
@@ -87,9 +67,9 @@ func (uc *AuthUseCase) Login(ctx context.Context, request domain.LoginRequest) (
 		// No retornamos error aquí porque el login ya fue exitoso
 	}
 
-	// Construir respuesta
-	response := &domain.LoginResponse{
-		User: domain.UserInfo{
+	// Construir respuesta simplificada
+	response := &dtos.LoginResponse{
+		User: dtos.UserInfo{
 			ID:          user.ID,
 			Name:        user.Name,
 			Email:       user.Email,
@@ -98,55 +78,12 @@ func (uc *AuthUseCase) Login(ctx context.Context, request domain.LoginRequest) (
 			IsActive:    user.IsActive,
 			LastLoginAt: user.LastLoginAt,
 		},
-		Token:       token,
-		IsSuper:     isSuper,
-		Roles:       make([]domain.RoleInfo, len(roles)),
-		Permissions: make([]domain.PermissionInfo, len(allPermissions)),
+		Token: token,
 	}
-
-	// Mapear roles
-	for i, role := range roles {
-		response.Roles[i] = domain.RoleInfo{
-			ID:          role.ID,
-			Name:        role.Name,
-			Code:        role.Code,
-			Description: role.Description,
-			Level:       role.Level,
-			Scope:       role.Scope,
-		}
-	}
-
-	// Mapear permisos (eliminar duplicados)
-	permissionMap := make(map[string]domain.PermissionInfo)
-	for _, permission := range allPermissions {
-		key := permission.Code
-		if _, exists := permissionMap[key]; !exists {
-			permissionMap[key] = domain.PermissionInfo{
-				ID:          permission.ID,
-				Name:        permission.Name,
-				Code:        permission.Code,
-				Description: permission.Description,
-				Resource:    permission.Resource,
-				Action:      permission.Action,
-				Scope:       permission.Scope,
-			}
-		}
-	}
-
-	// Convertir map a slice
-	permissionIndex := 0
-	for _, permission := range permissionMap {
-		response.Permissions[permissionIndex] = permission
-		permissionIndex++
-	}
-	response.Permissions = response.Permissions[:permissionIndex]
 
 	uc.log.Info().
 		Str("email", user.Email).
 		Uint("user_id", user.ID).
-		Int("roles_count", len(roles)).
-		Int("permissions_count", len(response.Permissions)).
-		Bool("is_super", isSuper).
 		Msg("Login exitoso")
 
 	return response, nil

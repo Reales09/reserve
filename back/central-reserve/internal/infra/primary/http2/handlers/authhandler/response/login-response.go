@@ -2,13 +2,10 @@ package response
 
 import "time"
 
-// LoginResponse representa la respuesta del login
+// LoginResponse representa la respuesta simplificada del login
 type LoginResponse struct {
-	User        UserInfo         `json:"user"`
-	Token       string           `json:"token"`
-	IsSuper     bool             `json:"is_super"`
-	Roles       []RoleInfo       `json:"roles"`
-	Permissions []PermissionInfo `json:"permissions"`
+	User  UserInfo `json:"user"`
+	Token string   `json:"token"`
 }
 
 // UserInfo representa la información del usuario en la respuesta
@@ -43,10 +40,23 @@ type PermissionInfo struct {
 	Scope       string `json:"scope"`
 }
 
+// UserRolesPermissionsResponse representa la respuesta de roles y permisos del usuario
+type UserRolesPermissionsResponse struct {
+	IsSuper     bool             `json:"is_super"`
+	Roles       []RoleInfo       `json:"roles"`
+	Permissions []PermissionInfo `json:"permissions"`
+}
+
 // LoginSuccessResponse representa la respuesta exitosa del login para Swagger
 type LoginSuccessResponse struct {
 	Success bool          `json:"success"`
 	Data    LoginResponse `json:"data"`
+}
+
+// UserRolesPermissionsSuccessResponse representa la respuesta exitosa de roles y permisos
+type UserRolesPermissionsSuccessResponse struct {
+	Success bool                         `json:"success"`
+	Data    UserRolesPermissionsResponse `json:"data"`
 }
 
 // LoginErrorResponse representa la respuesta de error del login para Swagger

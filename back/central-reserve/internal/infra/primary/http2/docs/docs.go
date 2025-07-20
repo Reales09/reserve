@@ -25,7 +25,7 @@ const docTemplate = `{
     "paths": {
         "/auth/login": {
             "post": {
-                "description": "Autentica un usuario con email y contraseña, retornando información del usuario, roles, permisos y token de acceso",
+                "description": "Autentica un usuario con email y contraseña, retornando información del usuario y token de acceso",
                 "consumes": [
                     "application/json"
                 ],
@@ -68,6 +68,73 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Usuario inactivo",
+                        "schema": {
+                            "$ref": "#/definitions/response.LoginErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error interno del servidor",
+                        "schema": {
+                            "$ref": "#/definitions/response.LoginErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/users/{user_id}/roles-permissions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Obtiene los roles y permisos de un usuario específico",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Obtener roles y permisos del usuario",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID del usuario",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Roles y permisos obtenidos exitosamente",
+                        "schema": {
+                            "$ref": "#/definitions/response.UserRolesPermissionsSuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "ID de usuario inválido",
+                        "schema": {
+                            "$ref": "#/definitions/response.LoginErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Token de acceso requerido",
+                        "schema": {
+                            "$ref": "#/definitions/response.LoginErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Acceso denegado",
+                        "schema": {
+                            "$ref": "#/definitions/response.LoginErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Usuario no encontrado",
                         "schema": {
                             "$ref": "#/definitions/response.LoginErrorResponse"
                         }
@@ -893,12 +960,15 @@ const docTemplate = `{
         "request.Client": {
             "type": "object",
             "required": [
+                "business_id",
                 "email",
                 "name",
-                "phone",
-                "restaurant_id"
+                "phone"
             ],
             "properties": {
+                "business_id": {
+                    "type": "integer"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -907,9 +977,6 @@ const docTemplate = `{
                 },
                 "phone": {
                     "type": "string"
-                },
-                "restaurant_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -931,15 +998,18 @@ const docTemplate = `{
         "request.Reservation": {
             "type": "object",
             "required": [
+                "business_id",
                 "email",
                 "end_at",
                 "name",
                 "number_of_guests",
                 "phone",
-                "restaurant_id",
                 "start_at"
             ],
             "properties": {
+                "business_id": {
+                    "type": "integer"
+                },
                 "dni": {
                     "type": "string"
                 },
@@ -958,9 +1028,6 @@ const docTemplate = `{
                 "phone": {
                     "type": "string"
                 },
-                "restaurant_id": {
-                    "type": "integer"
-                },
                 "start_at": {
                     "type": "string"
                 }
@@ -969,18 +1036,18 @@ const docTemplate = `{
         "request.Table": {
             "type": "object",
             "required": [
+                "business_id",
                 "capacity",
-                "number",
-                "restaurant_id"
+                "number"
             ],
             "properties": {
+                "business_id": {
+                    "type": "integer"
+                },
                 "capacity": {
                     "type": "integer"
                 },
                 "number": {
-                    "type": "integer"
-                },
-                "restaurant_id": {
                     "type": "integer"
                 }
             }
@@ -988,6 +1055,9 @@ const docTemplate = `{
         "request.UpdateClient": {
             "type": "object",
             "properties": {
+                "business_id": {
+                    "type": "integer"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -996,9 +1066,6 @@ const docTemplate = `{
                 },
                 "phone": {
                     "type": "string"
-                },
-                "restaurant_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -1022,13 +1089,13 @@ const docTemplate = `{
         "request.UpdateTable": {
             "type": "object",
             "properties": {
+                "business_id": {
+                    "type": "integer"
+                },
                 "capacity": {
                     "type": "integer"
                 },
                 "number": {
-                    "type": "integer"
-                },
-                "restaurant_id": {
                     "type": "integer"
                 }
             }
@@ -1058,21 +1125,6 @@ const docTemplate = `{
         "response.LoginResponse": {
             "type": "object",
             "properties": {
-                "is_super": {
-                    "type": "boolean"
-                },
-                "permissions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.PermissionInfo"
-                    }
-                },
-                "roles": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.RoleInfo"
-                    }
-                },
                 "token": {
                     "type": "string"
                 },
@@ -1164,6 +1216,37 @@ const docTemplate = `{
                 },
                 "phone": {
                     "type": "string"
+                }
+            }
+        },
+        "response.UserRolesPermissionsResponse": {
+            "type": "object",
+            "properties": {
+                "is_super": {
+                    "type": "boolean"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.PermissionInfo"
+                    }
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.RoleInfo"
+                    }
+                }
+            }
+        },
+        "response.UserRolesPermissionsSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.UserRolesPermissionsResponse"
+                },
+                "success": {
+                    "type": "boolean"
                 }
             }
         }

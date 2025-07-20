@@ -8,19 +8,19 @@ definitions:
     type: object
   request.Client:
     properties:
+      business_id:
+        type: integer
       email:
         type: string
       name:
         type: string
       phone:
         type: string
-      restaurant_id:
-        type: integer
     required:
+    - business_id
     - email
     - name
     - phone
-    - restaurant_id
     type: object
   request.LoginRequest:
     properties:
@@ -34,6 +34,8 @@ definitions:
     type: object
   request.Reservation:
     properties:
+      business_id:
+        type: integer
       dni:
         type: string
       email:
@@ -46,42 +48,40 @@ definitions:
         type: integer
       phone:
         type: string
-      restaurant_id:
-        type: integer
       start_at:
         type: string
     required:
+    - business_id
     - email
     - end_at
     - name
     - number_of_guests
     - phone
-    - restaurant_id
     - start_at
     type: object
   request.Table:
     properties:
+      business_id:
+        type: integer
       capacity:
         type: integer
       number:
         type: integer
-      restaurant_id:
-        type: integer
     required:
+    - business_id
     - capacity
     - number
-    - restaurant_id
     type: object
   request.UpdateClient:
     properties:
+      business_id:
+        type: integer
       email:
         type: string
       name:
         type: string
       phone:
         type: string
-      restaurant_id:
-        type: integer
     type: object
   request.UpdateReservation:
     properties:
@@ -96,11 +96,11 @@ definitions:
     type: object
   request.UpdateTable:
     properties:
+      business_id:
+        type: integer
       capacity:
         type: integer
       number:
-        type: integer
-      restaurant_id:
         type: integer
     type: object
   response.LoginBadRequestResponse:
@@ -119,16 +119,6 @@ definitions:
     type: object
   response.LoginResponse:
     properties:
-      is_super:
-        type: boolean
-      permissions:
-        items:
-          $ref: '#/definitions/response.PermissionInfo'
-        type: array
-      roles:
-        items:
-          $ref: '#/definitions/response.RoleInfo'
-        type: array
       token:
         type: string
       user:
@@ -190,6 +180,26 @@ definitions:
       phone:
         type: string
     type: object
+  response.UserRolesPermissionsResponse:
+    properties:
+      is_super:
+        type: boolean
+      permissions:
+        items:
+          $ref: '#/definitions/response.PermissionInfo'
+        type: array
+      roles:
+        items:
+          $ref: '#/definitions/response.RoleInfo'
+        type: array
+    type: object
+  response.UserRolesPermissionsSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.UserRolesPermissionsResponse'
+      success:
+        type: boolean
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -208,7 +218,7 @@ paths:
       consumes:
       - application/json
       description: Autentica un usuario con email y contraseña, retornando información
-        del usuario, roles, permisos y token de acceso
+        del usuario y token de acceso
       parameters:
       - description: Credenciales de login
         in: body
@@ -240,6 +250,49 @@ paths:
           schema:
             $ref: '#/definitions/response.LoginErrorResponse'
       summary: Autenticar usuario
+      tags:
+      - Auth
+  /auth/users/{user_id}/roles-permissions:
+    get:
+      consumes:
+      - application/json
+      description: Obtiene los roles y permisos de un usuario específico
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Roles y permisos obtenidos exitosamente
+          schema:
+            $ref: '#/definitions/response.UserRolesPermissionsSuccessResponse'
+        "400":
+          description: ID de usuario inválido
+          schema:
+            $ref: '#/definitions/response.LoginErrorResponse'
+        "401":
+          description: Token de acceso requerido
+          schema:
+            $ref: '#/definitions/response.LoginErrorResponse'
+        "403":
+          description: Acceso denegado
+          schema:
+            $ref: '#/definitions/response.LoginErrorResponse'
+        "404":
+          description: Usuario no encontrado
+          schema:
+            $ref: '#/definitions/response.LoginErrorResponse'
+        "500":
+          description: Error interno del servidor
+          schema:
+            $ref: '#/definitions/response.LoginErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Obtener roles y permisos del usuario
       tags:
       - Auth
   /clients:

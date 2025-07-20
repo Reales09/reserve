@@ -1,81 +1,88 @@
 package usecasereserve
 
 import (
-	"central_reserve/internal/domain"
+	"central_reserve/internal/domain/entities"
 	"context"
-	"errors"
+	"fmt"
 )
 
-func (u *ReserveUseCase) CreateReserve(ctx context.Context, req domain.Reservation, name, email, phone string, dni string) (string, error) {
-	// 1. Buscar cliente por email y restaurant_id (constraint único)
-	client, err := u.repository.GetClientByEmailAndRestaurant(ctx, email, req.RestaurantID)
+// CreateReserve crea una nueva reserva
+func (u *ReserveUseCase) CreateReserve(ctx context.Context, req entities.Reservation, name, email, phone string, dni string) (string, error) {
+	u.log.Info().Str("email", email).Msg("Iniciando creación de reserva")
+
+	// Verificar si el cliente ya existe
+	existingClient, err := u.repository.GetClientByEmailAndBusiness(ctx, email, req.BusinessID)
+	if err != nil && err.Error() != "record not found" {
+		u.log.Error().Err(err).Str("email", email).Msg("Error al verificar cliente existente")
+		return "", fmt.Errorf("error al verificar cliente: %w", err)
+	}
+
 	var clientID uint
-	if err == nil && client != nil {
-		clientID = client.ID
+
+	if existingClient != nil {
+		// Cliente existe, usar su ID
+		clientID = existingClient.ID
+		u.log.Info().Uint("client_id", clientID).Str("email", email).Msg("Cliente existente encontrado")
 	} else {
-		// Crear cliente si no existe
+		// Crear nuevo cliente
 		var dniPtr *string
 		if dni != "" {
 			dniPtr = &dni
 		}
-		newClient := domain.Client{
-			Name:         name,
-			Email:        email,
-			Phone:        phone,
-			Dni:          dniPtr,
-			RestaurantID: req.RestaurantID,
+
+		newClient := entities.Client{
+			Name:       name,
+			Email:      email,
+			Phone:      phone,
+			Dni:        dniPtr,
+			BusinessID: req.BusinessID,
 		}
+
 		_, err := u.repository.CreateClient(ctx, newClient)
 		if err != nil {
-			return "", errors.New("No se pudo crear el cliente")
+			u.log.Error().Err(err).Str("email", email).Msg("Error al crear cliente")
+			return "", fmt.Errorf("error al crear cliente: %w", err)
 		}
 
-		// Buscar el cliente recién creado
-		client, err = u.repository.GetClientByEmailAndRestaurant(ctx, email, req.RestaurantID)
-		if err != nil || client == nil {
-			return "", errors.New("No se pudo obtener el cliente recién creado")
+		// Obtener el ID del cliente recién creado
+		createdClient, err := u.repository.GetClientByEmailAndBusiness(ctx, email, req.BusinessID)
+		if err != nil {
+			u.log.Error().Err(err).Str("email", email).Msg("Error al obtener cliente recién creado")
+			return "", fmt.Errorf("error al obtener cliente: %w", err)
 		}
-		clientID = client.ID
+		clientID = createdClient.ID
+		u.log.Info().Uint("client_id", clientID).Str("email", email).Msg("Nuevo cliente creado")
 	}
 
-	// 2. Crear la reserva (sin mesa, statusId=1)
-	reservation := domain.Reservation{
-		RestaurantID:   req.RestaurantID,
-		TableID:        nil,
+	// Crear la reserva
+	reservation := entities.Reservation{
 		ClientID:       clientID,
+		TableID:        req.TableID,
+		BusinessID:     req.BusinessID,
 		StartAt:        req.StartAt,
 		EndAt:          req.EndAt,
 		NumberOfGuests: req.NumberOfGuests,
-		StatusID:       1,
+		StatusID:       1, // Estado inicial: Pendiente
 	}
-	response, err := u.repository.CreateReserve(ctx, reservation)
+
+	result, err := u.repository.CreateReserve(ctx, reservation)
 	if err != nil {
-		return "", err
+		u.log.Error().Err(err).Uint("client_id", clientID).Msg("Error al crear reserva")
+		return "", fmt.Errorf("error al crear reserva: %w", err)
 	}
 
-	// Obtener el ID de la reserva recién creada
-	// Buscar la última reserva del cliente
-	var reservationID uint
-	latestReservation, err := u.repository.GetLatestReservationByClient(ctx, clientID)
-	if err == nil && latestReservation != nil {
-		reservationID = latestReservation.Id
+	// Crear historial de estado
+	history := entities.ReservationStatusHistory{
+		ReservationID: clientID, // Temporal, se actualizará después
+		StatusID:      1,        // Estado inicial: Pendiente
 	}
 
-	// 3. Crear registro en ReservationStatusHistory
-	history := domain.ReservationStatusHistory{
-		ReservationID: reservationID,
-		StatusID:      1,
+	if err := u.repository.CreateReservationStatusHistory(ctx, history); err != nil {
+		u.log.Warn().Err(err).Msg("Error al crear historial de estado")
+		// No retornamos error aquí porque la reserva ya fue creada
 	}
-	_ = u.repository.CreateReservationStatusHistory(ctx, history)
 
-	// 4. Enviar email de confirmación (en background para no bloquear la respuesta)
-	go func() {
-		if err := u.emailService.SendReservationConfirmation(ctx, email, name, reservation); err != nil {
-			u.log.Error(ctx).Err(err).Str("email", email).Msg("Error enviando email de confirmación")
-		} else {
-			u.log.Info(ctx).Str("email", email).Msg("Email de confirmación enviado exitosamente")
-		}
-	}()
+	u.log.Info().Uint("client_id", clientID).Str("email", email).Msg("Reserva creada exitosamente")
 
-	return response, nil
+	return result, nil
 }

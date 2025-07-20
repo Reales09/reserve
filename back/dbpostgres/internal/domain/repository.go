@@ -32,6 +32,7 @@ type UserRepository interface {
 	ExistsByEmail(email string) (bool, error)
 	AssignRoles(userID uint, roleIDs []uint) error
 	UserExists() (bool, error)
+	ValidatePassword(hashedPassword, password string) error
 }
 
 // BusinessRepository define las operaciones para negocios

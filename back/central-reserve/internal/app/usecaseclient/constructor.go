@@ -1,27 +1,25 @@
 package usecaseclient
 
 import (
-	"central_reserve/internal/domain"
-	"central_reserve/internal/pkg/log"
+	"central_reserve/internal/domain/entities"
+	"central_reserve/internal/domain/ports"
 	"context"
 )
 
 type IUseCaseClient interface {
-	GetClients(ctx context.Context) ([]domain.Client, error)
-	GetClientByID(ctx context.Context, id uint) (*domain.Client, error)
-	CreateClient(ctx context.Context, client domain.Client) (string, error)
-	UpdateClient(ctx context.Context, id uint, client domain.Client) (string, error)
+	GetClients(ctx context.Context) ([]entities.Client, error)
+	GetClientByID(ctx context.Context, id uint) (*entities.Client, error)
+	CreateClient(ctx context.Context, client entities.Client) (string, error)
+	UpdateClient(ctx context.Context, id uint, client entities.Client) (string, error)
 	DeleteClient(ctx context.Context, id uint) (string, error)
 }
 
 type ClientUseCase struct {
-	repository domain.IHolaMundo
-	log        log.ILogger
+	repository ports.IClientUseCaseRepository
 }
 
-func NewClientUseCase(repository domain.IHolaMundo, log log.ILogger) IUseCaseClient {
+func NewClientUseCase(repository ports.IClientUseCaseRepository) *ClientUseCase {
 	return &ClientUseCase{
 		repository: repository,
-		log:        log,
 	}
 }

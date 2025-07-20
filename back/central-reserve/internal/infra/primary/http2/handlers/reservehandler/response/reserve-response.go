@@ -39,11 +39,11 @@ type ReserveDetail struct {
 	MesaNumero    *int  `json:"mesa_numero"`
 	MesaCapacidad *int  `json:"mesa_capacidad"`
 
-	// Restaurante
-	RestauranteID        uint   `json:"restaurante_id"`
-	RestauranteNombre    string `json:"restaurante_nombre"`
-	RestauranteCodigo    string `json:"restaurante_codigo"`
-	RestauranteDireccion string `json:"restaurante_direccion"`
+	// Negocio (cambiado de Restaurante)
+	NegocioID        uint   `json:"negocio_id"`
+	NegocioNombre    string `json:"negocio_nombre"`
+	NegocioCodigo    string `json:"negocio_codigo"`
+	NegocioDireccion string `json:"negocio_direccion"`
 
 	// Usuario
 	UsuarioID     *uint   `json:"usuario_id"`

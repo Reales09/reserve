@@ -1,14 +1,15 @@
 package usecasetables
 
 import (
-	"central_reserve/internal/domain"
+	"central_reserve/internal/domain/entities"
 	"context"
 )
 
-func (u *TableUseCase) GetTables(ctx context.Context) ([]domain.Table, error) {
-	response, err := u.repository.GetTables(ctx)
+// GetTables obtiene todas las mesas
+func (u *TableUseCase) GetTables(ctx context.Context) ([]entities.Table, error) {
+	tables, err := u.repository.GetTables(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return response, nil
+	return tables, nil
 }

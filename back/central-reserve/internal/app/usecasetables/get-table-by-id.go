@@ -1,14 +1,16 @@
 package usecasetables
 
 import (
-	"central_reserve/internal/domain"
+	"central_reserve/internal/domain/entities"
 	"context"
+	"fmt"
 )
 
-func (u *TableUseCase) GetTableByID(ctx context.Context, id uint) (*domain.Table, error) {
-	response, err := u.repository.GetTableByID(ctx, id)
+// GetTableByID obtiene una mesa por su ID
+func (u *TableUseCase) GetTableByID(ctx context.Context, id uint) (*entities.Table, error) {
+	table, err := u.repository.GetTableByID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error al obtener mesa: %w", err)
 	}
-	return response, nil
+	return table, nil
 }

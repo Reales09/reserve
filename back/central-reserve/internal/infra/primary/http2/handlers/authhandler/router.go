@@ -9,5 +9,6 @@ func SetupRoutes(router *gin.Engine, handler IAuthHandler) {
 	authGroup := router.Group("/api/v1/auth")
 	{
 		authGroup.POST("/login", handler.LoginHandler)
+		authGroup.GET("/users/:user_id/roles-permissions", handler.GetUserRolesPermissionsHandler)
 	}
 }

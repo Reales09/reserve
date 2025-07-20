@@ -1,7 +1,7 @@
 package authhandler
 
 import (
-	"central_reserve/internal/domain"
+	"central_reserve/internal/domain/dtos"
 	"central_reserve/internal/infra/primary/http2/handlers/authhandler/mapper"
 	"central_reserve/internal/infra/primary/http2/handlers/authhandler/request"
 	"central_reserve/internal/infra/primary/http2/handlers/authhandler/response"
@@ -12,7 +12,7 @@ import (
 
 // LoginHandler maneja la solicitud de login
 // @Summary Autenticar usuario
-// @Description Autentica un usuario con email y contraseña, retornando información del usuario, roles, permisos y token de acceso
+// @Description Autentica un usuario con email y contraseña, retornando información del usuario y token de acceso
 // @Tags Auth
 // @Accept json
 // @Produce json
@@ -37,7 +37,7 @@ func (h *AuthHandler) LoginHandler(c *gin.Context) {
 	}
 
 	// Convertir request a dominio
-	domainRequest := domain.LoginRequest{
+	domainRequest := dtos.LoginRequest{
 		Email:    loginRequest.Email,
 		Password: loginRequest.Password,
 	}
@@ -74,7 +74,6 @@ func (h *AuthHandler) LoginHandler(c *gin.Context) {
 	h.logger.Info().
 		Str("email", loginRequest.Email).
 		Uint("user_id", domainResponse.User.ID).
-		Bool("is_super", domainResponse.IsSuper).
 		Msg("Login exitoso")
 
 	// Retornar respuesta exitosa
