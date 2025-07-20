@@ -3,50 +3,37 @@ package authhandler
 import (
 	"central_reserve/internal/infra/primary/http2/handlers/authhandler/mapper"
 	"central_reserve/internal/infra/primary/http2/handlers/authhandler/response"
+	"central_reserve/internal/infra/primary/http2/middleware"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 // GetUserRolesPermissionsHandler maneja la solicitud de obtener roles y permisos del usuario
 // @Summary Obtener roles y permisos del usuario
-// @Description Obtiene los roles y permisos de un usuario específico
+// @Description Obtiene los roles y permisos del usuario autenticado
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param user_id path int true "ID del usuario"
 // @Security BearerAuth
 // @Success 200 {object} response.UserRolesPermissionsSuccessResponse "Roles y permisos obtenidos exitosamente"
-// @Failure 400 {object} response.LoginErrorResponse "ID de usuario inválido"
 // @Failure 401 {object} response.LoginErrorResponse "Token de acceso requerido"
-// @Failure 403 {object} response.LoginErrorResponse "Acceso denegado"
 // @Failure 404 {object} response.LoginErrorResponse "Usuario no encontrado"
 // @Failure 500 {object} response.LoginErrorResponse "Error interno del servidor"
-// @Router /auth/users/{user_id}/roles-permissions [get]
+// @Router /auth/roles-permissions [get]
 func (h *AuthHandler) GetUserRolesPermissionsHandler(c *gin.Context) {
-	// Obtener el ID del usuario desde la URL
-	userIDStr := c.Param("user_id")
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
-	if err != nil {
-		h.logger.Error().Err(err).Str("user_id", userIDStr).Msg("ID de usuario inválido")
-		c.JSON(http.StatusBadRequest, response.LoginErrorResponse{
-			Error: "ID de usuario inválido",
-		})
-		return
-	}
-
-	// Obtener el token del header de autorización
-	token := c.GetHeader("Authorization")
-	if token == "" {
-		h.logger.Error().Msg("Token de autorización requerido")
+	// Obtener el ID del usuario autenticado desde el middleware
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		h.logger.Error().Msg("Usuario no autenticado")
 		c.JSON(http.StatusUnauthorized, response.LoginErrorResponse{
-			Error: "Token de acceso requerido",
+			Error: "Usuario no autenticado",
 		})
 		return
 	}
 
-	// Remover el prefijo "Bearer " si existe
+	// Obtener el token del header de autorización (ya validado por el middleware)
+	token := c.GetHeader("Authorization")
 	if len(token) > 7 && token[:7] == "Bearer " {
 		token = token[7:]
 	}

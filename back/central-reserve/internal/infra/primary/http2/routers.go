@@ -8,6 +8,7 @@ import (
 	"central_reserve/internal/infra/primary/http2/handlers/tablehandler"
 	"central_reserve/internal/infra/primary/http2/middleware"
 	"central_reserve/internal/pkg/env"
+	"central_reserve/internal/pkg/jwt"
 	"central_reserve/internal/pkg/log"
 	"context"
 	"fmt"
@@ -29,12 +30,13 @@ type Handlers struct {
 }
 
 type HTTPServer struct {
-	server   *http.Server
-	router   *gin.Engine
-	logger   log.ILogger
-	handlers *Handlers
-	listener net.Listener
-	env      env.IConfig
+	server     *http.Server
+	router     *gin.Engine
+	logger     log.ILogger
+	handlers   *Handlers
+	listener   net.Listener
+	env        env.IConfig
+	jwtService *jwt.JWTService
 }
 
 func New(
@@ -42,6 +44,7 @@ func New(
 	logger log.ILogger,
 	handlers *Handlers,
 	env env.IConfig,
+	jwtService *jwt.JWTService,
 ) (*HTTPServer, error) {
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
@@ -63,10 +66,11 @@ func New(
 	router.Use(middleware.LoggingMiddleware(logger, env))
 
 	httpServer := &HTTPServer{
-		router:   router,
-		logger:   logger,
-		handlers: handlers,
-		listener: lis,
+		router:     router,
+		logger:     logger,
+		handlers:   handlers,
+		listener:   lis,
+		jwtService: jwtService,
 		server: &http.Server{
 			Handler:      router,
 			ReadTimeout:  15 * time.Second,
@@ -99,10 +103,10 @@ func (s *HTTPServer) Routers() {
 	v1Group := s.router.Group("/api/v1")
 
 	// Registrar rutas por dominio
-	authhandler.SetupRoutes(s.router, s.handlers.Auth)
-	clienthandler.RegisterRoutes(v1Group, s.handlers.Client)
-	tablehandler.RegisterRoutes(v1Group, s.handlers.Table)
-	reservehandler.RegisterRoutes(v1Group, s.handlers.Reserve)
+	authhandler.RegisterRoutes(v1Group, s.handlers.Auth, s.jwtService, s.logger)
+	clienthandler.RegisterRoutes(v1Group, s.handlers.Client, s.jwtService, s.logger)
+	tablehandler.RegisterRoutes(v1Group, s.handlers.Table, s.jwtService, s.logger)
+	reservehandler.RegisterRoutes(v1Group, s.handlers.Reserve, s.jwtService, s.logger)
 }
 
 func (s *HTTPServer) Start() error {

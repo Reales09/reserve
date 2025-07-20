@@ -44,9 +44,9 @@ func InitServer(ctx context.Context) (*AppServices, error) {
 		return nil, err
 	}
 
-	handlers := setupDependencies(database, logger, environment)
+	handlers, jwtService := setupDependencies(database, logger, environment)
 
-	httpServer, err := startHttpServer(ctx, logger, handlers, environment)
+	httpServer, err := startHttpServer(ctx, logger, handlers, environment, jwtService)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func InitServer(ctx context.Context) (*AppServices, error) {
 	return services, nil
 }
 
-func setupDependencies(database db.IDatabase, logger log.ILogger, environment env.IConfig) *http2.Handlers {
+func setupDependencies(database db.IDatabase, logger log.ILogger, environment env.IConfig) (*http2.Handlers, *jwt.JWTService) {
 	// Repositorios base por dominio
 	clientRepo := repository.NewClientRepository(database, logger)
 	tableRepo := repository.NewTableRepository(database, logger)
@@ -103,13 +103,13 @@ func setupDependencies(database db.IDatabase, logger log.ILogger, environment en
 		Client:  clientHandler,
 		Table:   tableHandler,
 		Reserve: reserveHandler,
-	}
+	}, jwtService
 }
 
-func startHttpServer(ctx context.Context, logger log.ILogger, handlers *http2.Handlers, environment env.IConfig) (*http2.HTTPServer, error) {
+func startHttpServer(ctx context.Context, logger log.ILogger, handlers *http2.Handlers, environment env.IConfig, jwtService *jwt.JWTService) (*http2.HTTPServer, error) {
 	port := environment.Get("HTTP_PORT")
 	httpAddr := fmt.Sprintf(":%s", port)
-	httpServer, err := http2.New(httpAddr, logger, handlers, environment)
+	httpServer, err := http2.New(httpAddr, logger, handlers, environment, jwtService)
 	if err != nil {
 		return nil, err
 	}

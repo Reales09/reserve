@@ -81,14 +81,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/users/{user_id}/roles-permissions": {
+        "/auth/roles-permissions": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Obtiene los roles y permisos de un usuario específico",
+                "description": "Obtiene los roles y permisos del usuario autenticado",
                 "consumes": [
                     "application/json"
                 ],
@@ -99,15 +99,6 @@ const docTemplate = `{
                     "Auth"
                 ],
                 "summary": "Obtener roles y permisos del usuario",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID del usuario",
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Roles y permisos obtenidos exitosamente",
@@ -115,20 +106,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.UserRolesPermissionsSuccessResponse"
                         }
                     },
-                    "400": {
-                        "description": "ID de usuario inválido",
-                        "schema": {
-                            "$ref": "#/definitions/response.LoginErrorResponse"
-                        }
-                    },
                     "401": {
                         "description": "Token de acceso requerido",
-                        "schema": {
-                            "$ref": "#/definitions/response.LoginErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Acceso denegado",
                         "schema": {
                             "$ref": "#/definitions/response.LoginErrorResponse"
                         }
@@ -968,6 +947,9 @@ const docTemplate = `{
             "properties": {
                 "business_id": {
                     "type": "integer"
+                },
+                "dni": {
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"

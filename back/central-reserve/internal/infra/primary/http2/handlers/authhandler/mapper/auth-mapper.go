@@ -31,10 +31,14 @@ func ToUserRolesPermissionsResponse(domainResponse *dtos.UserRolesPermissionsRes
 		return response.UserRolesPermissionsResponse{}
 	}
 
+	permissions := toPermissionInfoSlice(domainResponse.Permissions)
+	resources := groupPermissionsByResource(permissions)
+
 	return response.UserRolesPermissionsResponse{
 		IsSuper:     domainResponse.IsSuper,
 		Roles:       toRoleInfoSlice(domainResponse.Roles),
-		Permissions: toPermissionInfoSlice(domainResponse.Permissions),
+		Permissions: permissions, // Mantener para compatibilidad
+		Resources:   resources,   // Nuevo: permisos agrupados por recurso
 	}
 }
 
@@ -77,4 +81,31 @@ func toPermissionInfoSlice(domainPermissions []dtos.PermissionInfo) []response.P
 		}
 	}
 	return permissions
+}
+
+// groupPermissionsByResource agrupa los permisos por recurso
+func groupPermissionsByResource(permissions []response.PermissionInfo) []response.ResourcePermissions {
+	if permissions == nil {
+		return nil
+	}
+
+	// Mapa para agrupar permisos por recurso
+	resourceMap := make(map[string][]response.PermissionInfo)
+
+	// Agrupar permisos por recurso
+	for _, permission := range permissions {
+		resourceMap[permission.Resource] = append(resourceMap[permission.Resource], permission)
+	}
+
+	// Convertir el mapa a slice de ResourcePermissions
+	var resources []response.ResourcePermissions
+	for resource, actions := range resourceMap {
+		resources = append(resources, response.ResourcePermissions{
+			Resource:     resource,
+			ResourceName: resource, // Usar el nombre original del recurso
+			Actions:      actions,
+		})
+	}
+
+	return resources
 }

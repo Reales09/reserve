@@ -40,11 +40,19 @@ type PermissionInfo struct {
 	Scope       string `json:"scope"`
 }
 
+// ResourcePermissions representa los permisos agrupados por recurso
+type ResourcePermissions struct {
+	Resource     string           `json:"resource"`
+	ResourceName string           `json:"resource_name"`
+	Actions      []PermissionInfo `json:"actions"`
+}
+
 // UserRolesPermissionsResponse representa la respuesta de roles y permisos del usuario
 type UserRolesPermissionsResponse struct {
-	IsSuper     bool             `json:"is_super"`
-	Roles       []RoleInfo       `json:"roles"`
-	Permissions []PermissionInfo `json:"permissions"`
+	IsSuper     bool                  `json:"is_super"`
+	Roles       []RoleInfo            `json:"roles"`
+	Permissions []PermissionInfo      `json:"permissions"` // Mantener para compatibilidad
+	Resources   []ResourcePermissions `json:"resources"`   // Nuevo: permisos agrupados por recurso
 }
 
 // LoginSuccessResponse representa la respuesta exitosa del login para Swagger

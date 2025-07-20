@@ -10,6 +10,8 @@ definitions:
     properties:
       business_id:
         type: integer
+      dni:
+        type: string
       email:
         type: string
       name:
@@ -252,17 +254,11 @@ paths:
       summary: Autenticar usuario
       tags:
       - Auth
-  /auth/users/{user_id}/roles-permissions:
+  /auth/roles-permissions:
     get:
       consumes:
       - application/json
-      description: Obtiene los roles y permisos de un usuario específico
-      parameters:
-      - description: ID del usuario
-        in: path
-        name: user_id
-        required: true
-        type: integer
+      description: Obtiene los roles y permisos del usuario autenticado
       produces:
       - application/json
       responses:
@@ -270,16 +266,8 @@ paths:
           description: Roles y permisos obtenidos exitosamente
           schema:
             $ref: '#/definitions/response.UserRolesPermissionsSuccessResponse'
-        "400":
-          description: ID de usuario inválido
-          schema:
-            $ref: '#/definitions/response.LoginErrorResponse'
         "401":
           description: Token de acceso requerido
-          schema:
-            $ref: '#/definitions/response.LoginErrorResponse'
-        "403":
-          description: Acceso denegado
           schema:
             $ref: '#/definitions/response.LoginErrorResponse'
         "404":
