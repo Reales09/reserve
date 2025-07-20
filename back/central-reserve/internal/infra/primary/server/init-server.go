@@ -2,11 +2,15 @@ package server
 
 import (
 	"central_reserve/internal/app/usecaseauth"
+	"central_reserve/internal/app/usecasebusiness"
+	"central_reserve/internal/app/usecasebusinesstype"
 	"central_reserve/internal/app/usecaseclient"
 	"central_reserve/internal/app/usecasereserve"
 	"central_reserve/internal/app/usecasetables"
 	"central_reserve/internal/infra/primary/http2"
 	"central_reserve/internal/infra/primary/http2/handlers/authhandler"
+	"central_reserve/internal/infra/primary/http2/handlers/businesshandler"
+	"central_reserve/internal/infra/primary/http2/handlers/businesstypehandler"
 	"central_reserve/internal/infra/primary/http2/handlers/clienthandler"
 	"central_reserve/internal/infra/primary/http2/handlers/reservehandler"
 	"central_reserve/internal/infra/primary/http2/handlers/tablehandler"
@@ -68,11 +72,15 @@ func setupDependencies(database db.IDatabase, logger log.ILogger, environment en
 	clientRepo := repository.NewClientRepository(database, logger)
 	tableRepo := repository.NewTableRepository(database, logger)
 	authRepo := repository.NewAuthRepository(database, logger)
+	businessRepo := repository.NewBusinessRepository(database, logger)
+	businessTypeRepo := repository.NewBusinessTypeRepository(database, logger)
 
 	// Repositorios específicos para casos de uso
-	clientUseCaseRepo := clientRepo // IClientRepository implementa IClientUseCaseRepository
-	tableUseCaseRepo := tableRepo   // ITableRepository implementa ITableUseCaseRepository
-	authUseCaseRepo := authRepo     // IAuthRepository implementa IAuthUseCaseRepository
+	clientUseCaseRepo := clientRepo             // IClientRepository implementa IClientUseCaseRepository
+	tableUseCaseRepo := tableRepo               // ITableRepository implementa ITableUseCaseRepository
+	authUseCaseRepo := authRepo                 // IAuthRepository implementa IAuthUseCaseRepository
+	businessUseCaseRepo := businessRepo         // IBusinessRepository implementa IBusinessUseCaseRepository
+	businessTypeUseCaseRepo := businessTypeRepo // IBusinessTypeRepository implementa IBusinessTypeUseCaseRepository
 	reserveUseCaseRepo := repository.NewReserveUseCaseRepository(database, logger)
 
 	// Servicios
@@ -91,18 +99,24 @@ func setupDependencies(database db.IDatabase, logger log.ILogger, environment en
 	clientUseCase := usecaseclient.NewClientUseCase(clientUseCaseRepo)
 	tableUseCase := usecasetables.NewTableUseCase(tableUseCaseRepo)
 	reserveUseCase := usecasereserve.NewReserveUseCase(reserveUseCaseRepo, emailService, logger)
+	businessUseCase := usecasebusiness.NewBusinessUseCase(businessUseCaseRepo, logger)
+	businessTypeUseCase := usecasebusinesstype.NewBusinessTypeUseCase(businessTypeUseCaseRepo, logger)
 
 	// Handlers por dominio
 	authHandler := authhandler.New(authUseCase, logger)
 	clientHandler := clienthandler.New(clientUseCase, logger)
 	tableHandler := tablehandler.New(tableUseCase, logger)
 	reserveHandler := reservehandler.New(reserveUseCase, logger)
+	businessHandler := businesshandler.New(businessUseCase, logger)
+	businessTypeHandler := businesstypehandler.New(businessTypeUseCase, logger)
 
 	return &http2.Handlers{
-		Auth:    authHandler,
-		Client:  clientHandler,
-		Table:   tableHandler,
-		Reserve: reserveHandler,
+		Auth:         authHandler,
+		Client:       clientHandler,
+		Table:        tableHandler,
+		Reserve:      reserveHandler,
+		Business:     businessHandler,
+		BusinessType: businessTypeHandler,
 	}, jwtService
 }
 

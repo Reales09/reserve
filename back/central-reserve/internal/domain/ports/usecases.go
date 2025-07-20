@@ -49,3 +49,24 @@ type IReserveUseCaseRepository interface {
 	UpdateReservation(ctx context.Context, id uint, tableID *uint, startAt *time.Time, endAt *time.Time, numberOfGuests *int) (string, error)
 	CreateReservationStatusHistory(ctx context.Context, history entities.ReservationStatusHistory) error
 }
+
+// IBusinessTypeUseCaseRepository define los métodos que necesita BusinessTypeUseCase
+type IBusinessTypeUseCaseRepository interface {
+	GetBusinessTypes(ctx context.Context) ([]entities.BusinessType, error)
+	GetBusinessTypeByID(ctx context.Context, id uint) (*entities.BusinessType, error)
+	GetBusinessTypeByCode(ctx context.Context, code string) (*entities.BusinessType, error)
+	CreateBusinessType(ctx context.Context, businessType entities.BusinessType) (string, error)
+	UpdateBusinessType(ctx context.Context, id uint, businessType entities.BusinessType) (string, error)
+	DeleteBusinessType(ctx context.Context, id uint) (string, error)
+}
+
+// IBusinessUseCaseRepository define los métodos que necesita BusinessUseCase
+type IBusinessUseCaseRepository interface {
+	GetBusinesses(ctx context.Context) ([]entities.Business, error)
+	GetBusinessByID(ctx context.Context, id uint) (*entities.Business, error)
+	GetBusinessByCode(ctx context.Context, code string) (*entities.Business, error)
+	GetBusinessByCustomDomain(ctx context.Context, domain string) (*entities.Business, error)
+	CreateBusiness(ctx context.Context, business entities.Business) (string, error)
+	UpdateBusiness(ctx context.Context, id uint, business entities.Business) (string, error)
+	DeleteBusiness(ctx context.Context, id uint) (string, error)
+}

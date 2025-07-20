@@ -3,6 +3,8 @@ package http2
 import (
 	"central_reserve/internal/infra/primary/http2/docs"
 	"central_reserve/internal/infra/primary/http2/handlers/authhandler"
+	"central_reserve/internal/infra/primary/http2/handlers/businesshandler"
+	"central_reserve/internal/infra/primary/http2/handlers/businesstypehandler"
 	"central_reserve/internal/infra/primary/http2/handlers/clienthandler"
 	"central_reserve/internal/infra/primary/http2/handlers/reservehandler"
 	"central_reserve/internal/infra/primary/http2/handlers/tablehandler"
@@ -23,10 +25,12 @@ import (
 )
 
 type Handlers struct {
-	Auth    authhandler.IAuthHandler
-	Client  clienthandler.IClientHandler
-	Table   tablehandler.ITableHandler
-	Reserve reservehandler.IReserveHandler
+	Auth         authhandler.IAuthHandler
+	Client       clienthandler.IClientHandler
+	Table        tablehandler.ITableHandler
+	Reserve      reservehandler.IReserveHandler
+	Business     businesshandler.IBusinessHandler
+	BusinessType businesstypehandler.IBusinessTypeHandler
 }
 
 type HTTPServer struct {
@@ -107,6 +111,8 @@ func (s *HTTPServer) Routers() {
 	clienthandler.RegisterRoutes(v1Group, s.handlers.Client, s.jwtService, s.logger)
 	tablehandler.RegisterRoutes(v1Group, s.handlers.Table, s.jwtService, s.logger)
 	reservehandler.RegisterRoutes(v1Group, s.handlers.Reserve, s.jwtService, s.logger)
+	businesshandler.RegisterRoutes(v1Group, s.handlers.Business, s.jwtService, s.logger)
+	businesstypehandler.RegisterRoutes(v1Group, s.handlers.BusinessType, s.jwtService, s.logger)
 }
 
 func (s *HTTPServer) Start() error {

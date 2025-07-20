@@ -56,3 +56,24 @@ type IAuthService interface {
 	GenerateToken(userID uint, email string, roles []string) (string, error)
 	UpdateLastLogin(ctx context.Context, userID uint) error
 }
+
+// IBusinessTypeRepository define las operaciones para tipos de negocio
+type IBusinessTypeRepository interface {
+	GetBusinessTypes(ctx context.Context) ([]entities.BusinessType, error)
+	GetBusinessTypeByID(ctx context.Context, id uint) (*entities.BusinessType, error)
+	GetBusinessTypeByCode(ctx context.Context, code string) (*entities.BusinessType, error)
+	CreateBusinessType(ctx context.Context, businessType entities.BusinessType) (string, error)
+	UpdateBusinessType(ctx context.Context, id uint, businessType entities.BusinessType) (string, error)
+	DeleteBusinessType(ctx context.Context, id uint) (string, error)
+}
+
+// IBusinessRepository define las operaciones para negocios
+type IBusinessRepository interface {
+	GetBusinesses(ctx context.Context) ([]entities.Business, error)
+	GetBusinessByID(ctx context.Context, id uint) (*entities.Business, error)
+	GetBusinessByCode(ctx context.Context, code string) (*entities.Business, error)
+	GetBusinessByCustomDomain(ctx context.Context, domain string) (*entities.Business, error)
+	CreateBusiness(ctx context.Context, business entities.Business) (string, error)
+	UpdateBusiness(ctx context.Context, id uint, business entities.Business) (string, error)
+	DeleteBusiness(ctx context.Context, id uint) (string, error)
+}
