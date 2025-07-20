@@ -1,7 +1,8 @@
 import React from 'react';
+import UserInfo from './UserInfo.js';
 import './Sidebar.css';
 
-const Sidebar = ({ activeView, onViewChange }) => {
+const Sidebar = ({ activeView, onViewChange, userInfo, onLogout }) => {
     const menuItems = [
         {
             id: 'calendario',
@@ -14,12 +15,43 @@ const Sidebar = ({ activeView, onViewChange }) => {
             icon: '≡',
             label: 'Reservas',
             path: '/reservas'
+        },
+        {
+            id: 'auth-test',
+            icon: '🔐',
+            label: 'Prueba Auth',
+            path: '/auth-test'
         }
     ];
 
     return (
         <div className="sidebar">
-
+            {/* Header con información del usuario */}
+            <div className="sidebar-header">
+                <div className="user-info">
+                    <div className="user-avatar">
+                        {userInfo?.avatar_url ? (
+                            <img src={userInfo.avatar_url} alt="Avatar" />
+                        ) : (
+                            <span className="user-avatar-placeholder">
+                                {userInfo?.name?.charAt(0)?.toUpperCase() || 'U'}
+                            </span>
+                        )}
+                    </div>
+                    <div className="user-details">
+                        <div className="user-name">{userInfo?.name || 'Usuario'}</div>
+                        <div className="user-email">{userInfo?.email || 'usuario@ejemplo.com'}</div>
+                    </div>
+                </div>
+                <button 
+                    className="logout-button"
+                    onClick={onLogout}
+                    title="Cerrar sesión"
+                >
+                    <span className="logout-icon">🚪</span>
+                    <span className="logout-label">Salir</span>
+                </button>
+            </div>
 
             <nav className="sidebar-nav">
                 <ul className="nav-list">
@@ -42,7 +74,10 @@ const Sidebar = ({ activeView, onViewChange }) => {
                 </ul>
             </nav>
 
-
+            {/* Componente UserInfo expandido */}
+            <div className="sidebar-user-info">
+                <UserInfo />
+            </div>
         </div>
     );
 };
