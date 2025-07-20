@@ -2,25 +2,25 @@ package main
 
 import (
 	"context"
-	"dbpostgres/db"
-	"dbpostgres/db/migrate"
+	"dbpostgres/internal/app/usecases"
+	"dbpostgres/internal/infra/db"
+	"dbpostgres/internal/infra/repository"
 	"dbpostgres/pkg/env"
 	"dbpostgres/pkg/log"
 	"time"
 )
 
 func main() {
-	// 1. Inicializar el logger
+	// Inicializar logger
 	logger := log.New()
-	logger.Info().Msg("Iniciando el proceso de migración")
 
-	// 2. Cargar configuración desde variables de entorno
+	// Inicializar configuración
 	config, err := env.New(logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Error al cargar la configuración")
 	}
 
-	// 3. Inicializar y conectar a la base de datos
+	// Inicializar y conectar a la base de datos
 	database := db.New(logger, config)
 
 	// Usamos un contexto con timeout para la conexión inicial
@@ -39,11 +39,43 @@ func main() {
 		}
 	}()
 
-	// 4. Ejecutar migraciones e inicializar datos del sistema
-	logger.Info().Msg("Ejecutando migraciones e inicializando datos del sistema...")
-	if err := migrate.MigrateDB(database.Conn(context.Background()), logger, config); err != nil {
-		logger.Fatal().Err(err).Msg("Falló la migración e inicialización de datos del sistema")
+	// Obtener la conexión de GORM
+	dbConn := database.Conn(context.Background())
+
+	// Crear repositorios
+	permissionRepo := repository.NewPermissionRepository(dbConn, logger)
+	roleRepo := repository.NewRoleRepository(dbConn, logger)
+	userRepo := repository.NewUserRepository(dbConn, logger)
+	businessRepo := repository.NewBusinessRepository(dbConn, logger)
+	tableRepo := repository.NewTableRepository(dbConn, logger)
+	statusRepo := repository.NewReservationStatusRepository(dbConn, logger)
+
+	// Crear casos de uso
+	systemUseCase := usecases.NewSystemUseCase(
+		permissionRepo,
+		roleRepo,
+		userRepo,
+		businessRepo,
+		tableRepo,
+		statusRepo,
+		logger,
+	)
+
+	scopeUseCase := usecases.NewScopeUseCase(dbConn, logger)
+
+	// Crear caso de uso de migración
+	migrationUseCase := usecases.NewMigrationUseCase(
+		systemUseCase,
+		scopeUseCase,
+		dbConn,
+		logger,
+		config,
+	)
+
+	// Ejecutar migración
+	if err := migrationUseCase.MigrateDB(); err != nil {
+		logger.Fatal().Err(err).Msg("Error al ejecutar migración")
 	}
 
-	logger.Info().Msg("Migración e inicialización completadas exitosamente.")
+	logger.Info().Msg("✅ Migración completada exitosamente")
 }

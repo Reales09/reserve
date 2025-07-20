@@ -1,13 +1,11 @@
-package repository
+package domain
 
 import (
-	"dbpostgres/db/models"
-	"dbpostgres/pkg/log"
-
-	"gorm.io/gorm"
+	"dbpostgres/internal/infra/models"
 )
 
 // Repository interfaces para cada entidad
+// Estas interfaces definen los contratos que deben implementar los repositorios
 
 // PermissionRepository define las operaciones para permisos
 type PermissionRepository interface {
@@ -36,20 +34,20 @@ type UserRepository interface {
 	UserExists() (bool, error)
 }
 
-// RestaurantRepository define las operaciones para restaurantes
-type RestaurantRepository interface {
-	Create(restaurant *models.Restaurant) error
-	GetByCode(code string) (*models.Restaurant, error)
-	GetByID(id uint) (*models.Restaurant, error)
+// BusinessRepository define las operaciones para negocios
+type BusinessRepository interface {
+	Create(business *models.Business) error
+	GetByCode(code string) (*models.Business, error)
+	GetByID(id uint) (*models.Business, error)
 	ExistsByCode(code string) (bool, error)
 }
 
 // TableRepository define las operaciones para mesas
 type TableRepository interface {
 	Create(table *models.Table) error
-	GetByRestaurantAndNumber(restaurantID uint, number int) (*models.Table, error)
-	GetByRestaurant(restaurantID uint) ([]models.Table, error)
-	ExistsByRestaurantAndNumber(restaurantID uint, number int) (bool, error)
+	GetByBusinessAndNumber(businessID uint, number int) (*models.Table, error)
+	GetByBusiness(businessID uint) ([]models.Table, error)
+	ExistsByBusinessAndNumber(businessID uint, number int) (bool, error)
 }
 
 // ReservationStatusRepository define las operaciones para estados de reserva
@@ -66,7 +64,7 @@ type SystemRepository interface {
 	InitializePermissions(permissions []models.Permission) error
 	InitializeRoles(roles []models.Role) error
 	InitializeUsers(users []models.User) error
-	InitializeRestaurants(restaurants []models.Restaurant) error
+	InitializeBusinesses(businesses []models.Business) error
 	InitializeTables(tables []models.Table) error
 	InitializeReservationStatuses(statuses []models.ReservationStatus) error
 	AssignPermissionsToRole(roleCode string, permissionCodes []string) error
@@ -77,12 +75,12 @@ type SystemRepository interface {
 	Create(user *models.User) error
 	UserExists() (bool, error)
 
-	// Métodos de restaurante para migraciones
+	// Métodos de negocio para migraciones
 	ExistsByCode(code string) (bool, error)
-	CreateRestaurant(restaurant *models.Restaurant) error
+	CreateBusiness(business *models.Business) error
 
 	// Métodos de mesa para migraciones
-	ExistsByRestaurantAndNumber(restaurantID uint, number int) (bool, error)
+	ExistsByBusinessAndNumber(businessID uint, number int) (bool, error)
 
 	// Métodos de consulta para roles y permisos
 	GetRoleByCode(code string) (*models.Role, error)
@@ -90,26 +88,15 @@ type SystemRepository interface {
 
 	// Métodos de estados de reserva
 	GetAllReservationStatuses() ([]models.ReservationStatus, error)
-}
 
-// RepositoryManager maneja todas las instancias de repositorios
-type RepositoryManager struct {
-	PermissionRepository
-	RoleRepository
-	UserRepository
-	RestaurantRepository
-	TableRepository
-	ReservationStatusRepository
-}
-
-// NewRepositoryManager crea una nueva instancia del manager de repositorios
-func NewRepositoryManager(db *gorm.DB, logger log.ILogger) *RepositoryManager {
-	return &RepositoryManager{
-		PermissionRepository:        NewPermissionRepository(db, logger),
-		RoleRepository:              NewRoleRepository(db, logger),
-		UserRepository:              NewUserRepository(db, logger),
-		RestaurantRepository:        NewRestaurantRepository(db, logger),
-		TableRepository:             NewTableRepository(db, logger),
-		ReservationStatusRepository: NewReservationStatusRepository(db, logger),
-	}
+	// Métodos para nuevos modelos (Scope, BusinessType, Business)
+	InitializeScopes(scopes []models.Scope) error
+	InitializeBusinessTypes(businessTypes []models.BusinessType) error
+	GetScopeByCode(code string) (*models.Scope, error)
+	GetBusinessTypeByCode(code string) (*models.BusinessType, error)
+	ExistsScopeByCode(code string) (bool, error)
+	ExistsBusinessTypeByCode(code string) (bool, error)
+	ExistsBusinessByCode(code string) (bool, error)
+	ExistsRoleByCode(code string) (bool, error)
+	ExistsPermissionByCode(code string) (bool, error)
 }

@@ -8,16 +8,51 @@ import (
 
 // ───────────────────────────────────────────
 //
-//	RESTAURANTS  (multi-tenant) - MARCA BLANCA
+//	BUSINESS TYPES - Tipos de negocios
 //
 // ───────────────────────────────────────────
-type Restaurant struct {
+type BusinessType struct {
 	gorm.Model
-	Name        string `gorm:"size:120;not null"`
-	Code        string `gorm:"size:50;not null;unique"` // slug para URL personalizada
-	Timezone    string `gorm:"size:40;default:'America/Bogota'"`
-	Address     string `gorm:"size:255"`
+	Name        string `gorm:"size:100;not null;unique"`
+	Code        string `gorm:"size:50;not null;unique"` // Código interno
 	Description string `gorm:"size:500"`
+	Icon        string `gorm:"size:100"` // Icono para UI
+	IsActive    bool   `gorm:"default:true"`
+
+	// Relación con negocios
+	Businesses []Business
+}
+
+// ───────────────────────────────────────────
+//
+//	SCOPES - Ámbitos de permisos y roles
+//
+// ───────────────────────────────────────────
+type Scope struct {
+	gorm.Model
+	Name        string `gorm:"size:100;not null;unique"`
+	Code        string `gorm:"size:50;not null;unique"` // Código interno
+	Description string `gorm:"size:500"`
+	IsSystem    bool   `gorm:"default:false"` // Si es scope del sistema (no se puede eliminar)
+
+	// Relaciones
+	Roles       []Role       `gorm:"foreignKey:ScopeID"`
+	Permissions []Permission `gorm:"foreignKey:ScopeID"`
+}
+
+// ───────────────────────────────────────────
+//
+//	BUSINESSES  (multi-tenant) - MARCA BLANCA
+//
+// ───────────────────────────────────────────
+type Business struct {
+	gorm.Model
+	Name           string `gorm:"size:120;not null"`
+	Code           string `gorm:"size:50;not null;unique"` // slug para URL personalizada
+	BusinessTypeID uint   `gorm:"not null;index"`
+	Timezone       string `gorm:"size:40;default:'America/Bogota'"`
+	Address        string `gorm:"size:255"`
+	Description    string `gorm:"size:500"`
 
 	// Configuración de marca blanca
 	LogoURL        string `gorm:"size:255"`
@@ -31,11 +66,13 @@ type Restaurant struct {
 	EnablePickup       bool `gorm:"default:false"`
 	EnableReservations bool `gorm:"default:true"`
 
+	// Relaciones
+	BusinessType BusinessType
 	Tables       []Table
 	Reservations []Reservation
-	Staff        []RestaurantStaff
+	Staff        []BusinessStaff
 	Clients      []Client
-	Users        []User `gorm:"many2many:user_restaurants;"` // Usuarios del restaurante (muchos a muchos)
+	Users        []User `gorm:"many2many:user_businesses;"` // Usuarios del negocio (muchos a muchos)
 }
 
 // ───────────────────────────────────────────
@@ -52,7 +89,8 @@ type Role struct {
 	IsSystem    bool   `gorm:"default:false"`      // Si es rol del sistema (no se puede eliminar)
 
 	// Scope del rol
-	Scope string `gorm:"size:20;not null;default:'restaurant'"` // 'platform', 'restaurant', 'both'
+	ScopeID uint  `gorm:"not null;index"`
+	Scope   Scope `gorm:"foreignKey:ScopeID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 
 	Permissions []Permission `gorm:"many2many:role_permissions;"`
 	Users       []User       `gorm:"many2many:user_roles;"`
@@ -68,10 +106,11 @@ type Permission struct {
 	Name        string `gorm:"size:100;not null;unique"`
 	Code        string `gorm:"size:50;not null;unique"` // Código interno
 	Description string `gorm:"size:255"`
-	Resource    string `gorm:"size:50;not null"`                      // Recurso: 'restaurants', 'users', 'reservations', etc.
-	Action      string `gorm:"size:20;not null"`                      // Acción: 'create', 'read', 'update', 'delete', 'manage'
-	Scope       string `gorm:"size:20;not null;default:'restaurant'"` // 'platform', 'restaurant', 'both'
+	Resource    string `gorm:"size:50;not null"` // Recurso: 'businesses', 'users', 'reservations', etc.
+	Action      string `gorm:"size:20;not null"` // Acción: 'create', 'read', 'update', 'delete', 'manage'
+	ScopeID     uint   `gorm:"not null;index"`   // Referencia al scope
 
+	Scope Scope  `gorm:"foreignKey:ScopeID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	Roles []Role `gorm:"many2many:role_permissions;"`
 }
 
@@ -90,30 +129,30 @@ type User struct {
 	IsActive    bool   `gorm:"default:true"`
 	LastLoginAt *time.Time
 
-	// Relación con restaurantes (un usuario puede estar en múltiples restaurantes)
-	Restaurants []Restaurant `gorm:"many2many:user_restaurants;"`
+	// Relación con negocios (un usuario puede estar en múltiples negocios)
+	Businesses []Business `gorm:"many2many:user_businesses;"`
 
 	// Roles del usuario (RELACIÓN MANY-TO-MANY)
 	Roles []Role `gorm:"many2many:user_roles;"`
 
 	// Relaciones existentes
-	StaffOf []RestaurantStaff
+	StaffOf []BusinessStaff
 }
 
 // ───────────────────────────────────────────
 //
-//	RESTAURANT STAFF  (N:M usuario ↔ restaurante)
+//	BUSINESS STAFF  (N:M usuario ↔ negocio)
 //
 // ───────────────────────────────────────────
-type RestaurantStaff struct {
+type BusinessStaff struct {
 	gorm.Model
-	UserID       uint `gorm:"not null;index;uniqueIndex:idx_user_restaurant,priority:1"`
-	RestaurantID uint `gorm:"not null;index;uniqueIndex:idx_user_restaurant,priority:2"`
-	RoleID       uint `gorm:"not null;index"` // Ahora referencia a Role en lugar de string
+	UserID     uint `gorm:"not null;index;uniqueIndex:idx_user_business,priority:1"`
+	BusinessID uint `gorm:"not null;index;uniqueIndex:idx_user_business,priority:2"`
+	RoleID     uint `gorm:"not null;index"` // Ahora referencia a Role en lugar de string
 
-	User       User       `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Restaurant Restaurant `gorm:"foreignKey:RestaurantID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Role       Role       `gorm:"foreignKey:RoleID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	User     User     `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Business Business `gorm:"foreignKey:BusinessID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Role     Role     `gorm:"foreignKey:RoleID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 }
 
 // ───────────────────────────────────────────
@@ -123,14 +162,14 @@ type RestaurantStaff struct {
 // ───────────────────────────────────────────
 type Client struct {
 	gorm.Model
-	RestaurantID uint    `gorm:"not null;index;uniqueIndex:idx_rest_client_email,priority:1"`
-	Name         string  `gorm:"size:255;not null"`
-	Email        string  `gorm:"size:255;uniqueIndex:idx_rest_client_email,priority:2"`
-	Phone        string  `gorm:"size:20"`
-	Dni          *string `gorm:"size:30;uniqueIndex:idx_rest_client_dni,priority:2"`
+	BusinessID uint    `gorm:"not null;index;uniqueIndex:idx_business_client_email,priority:1"`
+	Name       string  `gorm:"size:255;not null"`
+	Email      string  `gorm:"size:255;uniqueIndex:idx_business_client_email,priority:2"`
+	Phone      string  `gorm:"size:20"`
+	Dni        *string `gorm:"size:30;uniqueIndex:idx_business_client_dni,priority:2"`
 
 	Reservations []Reservation
-	Restaurant   Restaurant `gorm:"foreignKey:RestaurantID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Business     Business `gorm:"foreignKey:BusinessID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 // ───────────────────────────────────────────
@@ -140,10 +179,11 @@ type Client struct {
 // ───────────────────────────────────────────
 type Table struct {
 	gorm.Model
-	RestaurantID uint `gorm:"not null;index;uniqueIndex:idx_rest_table_number,priority:1"`
-	Number       int  `gorm:"not null;uniqueIndex:idx_rest_table_number,priority:2"`
-	Capacity     int  `gorm:"not null"`
+	BusinessID uint `gorm:"not null;index;uniqueIndex:idx_business_table_number,priority:1"`
+	Number     int  `gorm:"not null;uniqueIndex:idx_business_table_number,priority:2"`
+	Capacity   int  `gorm:"not null"`
 
+	Business     Business
 	Reservations []Reservation
 }
 
@@ -154,9 +194,9 @@ type Table struct {
 // ───────────────────────────────────────────
 type Reservation struct {
 	gorm.Model
-	RestaurantID uint  `gorm:"not null;index"`
-	TableID      *uint `gorm:"index"`
-	ClientID     uint  `gorm:"not null;index"`
+	BusinessID uint  `gorm:"not null;index"`
+	TableID    *uint `gorm:"index"`
+	ClientID   uint  `gorm:"not null;index"`
 	// Opcional: quién registró la reserva (empleado o sistema)
 	CreatedByUserID *uint `gorm:"index"`
 
@@ -165,11 +205,11 @@ type Reservation struct {
 	NumberOfGuests int       `gorm:"not null"`
 	StatusID       uint      `gorm:"not null;index"`
 
-	Restaurant Restaurant        `gorm:"foreignKey:RestaurantID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Table      Table             `gorm:"foreignKey:TableID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Client     Client            `gorm:"foreignKey:ClientID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	CreatedBy  User              `gorm:"foreignKey:CreatedByUserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	Status     ReservationStatus `gorm:"foreignKey:StatusID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	Business  Business          `gorm:"foreignKey:BusinessID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Table     Table             `gorm:"foreignKey:TableID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Client    Client            `gorm:"foreignKey:ClientID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	CreatedBy User              `gorm:"foreignKey:CreatedByUserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Status    ReservationStatus `gorm:"foreignKey:StatusID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 }
 
 // ───────────────────────────────────────────
@@ -205,42 +245,6 @@ type ReservationStatusHistory struct {
 //	CONSTANTES Y ENUMS
 //
 // ───────────────────────────────────────────
-
-// Roles predefinidos del sistema
-const (
-	// Roles de plataforma (super usuarios)
-	ROLE_SUPER_ADMIN       = "super_admin"       // Control total del sistema, puede hacer todo
-	ROLE_PLATFORM_ADMIN    = "platform_admin"    // Administra la plataforma, gestiona restaurantes y usuarios
-	ROLE_PLATFORM_OPERATOR = "platform_operator" // Operaciones básicas, solo lectura y reportes
-
-	// Roles de restaurante
-	ROLE_RESTAURANT_OWNER   = "restaurant_owner"   // Dueño del restaurante, control total del negocio
-	ROLE_RESTAURANT_MANAGER = "restaurant_manager" // Gerente, gestiona operaciones diarias
-	ROLE_RESTAURANT_STAFF   = "restaurant_staff"   // Personal general, acceso básico
-	ROLE_WAITER             = "waiter"             // Mesero, ve reservas y mesas
-	ROLE_HOST               = "host"               // Anfitrión, gestiona reservas y clientes
-)
-
-// Scopes de roles y permisos
-const (
-	SCOPE_PLATFORM   = "platform"
-	SCOPE_RESTAURANT = "restaurant"
-	SCOPE_BOTH       = "both"
-)
-
-// Recursos del sistema (entidades que se pueden gestionar)
-const (
-	RESOURCE_RESTAURANTS  = "restaurants"  // Restaurantes de la plataforma
-	RESOURCE_USERS        = "users"        // Usuarios del sistema
-	RESOURCE_ROLES        = "roles"        // Roles y permisos
-	RESOURCE_PERMISSIONS  = "permissions"  // Permisos individuales
-	RESOURCE_RESERVATIONS = "reservations" // Reservas de restaurantes
-	RESOURCE_TABLES       = "tables"       // Mesas de los restaurantes
-	RESOURCE_CLIENTS      = "clients"      // Clientes que hacen reservas
-	RESOURCE_DELIVERY     = "delivery"     // Pedidos de delivery (futuro)
-	RESOURCE_MENU         = "menu"         // Menús de restaurantes (futuro)
-	RESOURCE_REPORTS      = "reports"      // Reportes y estadísticas
-)
 
 // Acciones del sistema (operaciones que se pueden realizar)
 const (

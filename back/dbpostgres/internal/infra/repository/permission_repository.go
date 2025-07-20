@@ -1,20 +1,21 @@
 package repository
 
 import (
-	"dbpostgres/db/models"
+	"dbpostgres/internal/domain"
+	"dbpostgres/internal/infra/models"
 	"dbpostgres/pkg/log"
 
 	"gorm.io/gorm"
 )
 
-// permissionRepository implementa PermissionRepository
+// permissionRepository implementa domain.PermissionRepository
 type permissionRepository struct {
 	db     *gorm.DB
 	logger log.ILogger
 }
 
 // NewPermissionRepository crea una nueva instancia del repositorio de permisos
-func NewPermissionRepository(db *gorm.DB, logger log.ILogger) PermissionRepository {
+func NewPermissionRepository(db *gorm.DB, logger log.ILogger) domain.PermissionRepository {
 	return &permissionRepository{
 		db:     db,
 		logger: logger,
@@ -24,10 +25,9 @@ func NewPermissionRepository(db *gorm.DB, logger log.ILogger) PermissionReposito
 // Create crea un nuevo permiso
 func (r *permissionRepository) Create(permission *models.Permission) error {
 	if err := r.db.Create(permission).Error; err != nil {
-		r.logger.Error().Err(err).Str("permission_code", permission.Code).Msg("Error al crear permiso")
+		r.logger.Error().Err(err).Str("code", permission.Code).Msg("Error al crear permiso")
 		return err
 	}
-	r.logger.Debug().Str("permission_code", permission.Code).Msg("Permiso creado exitosamente")
 	return nil
 }
 
@@ -38,7 +38,7 @@ func (r *permissionRepository) GetByCode(code string) (*models.Permission, error
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
-		r.logger.Error().Err(err).Str("permission_code", code).Msg("Error al obtener permiso por código")
+		r.logger.Error().Err(err).Str("code", code).Msg("Error al obtener permiso por código")
 		return nil, err
 	}
 	return &permission, nil
@@ -54,11 +54,11 @@ func (r *permissionRepository) GetAll() ([]models.Permission, error) {
 	return permissions, nil
 }
 
-// ExistsByCode verifica si existe un permiso por su código
+// ExistsByCode verifica si existe un permiso con el código especificado
 func (r *permissionRepository) ExistsByCode(code string) (bool, error) {
 	var count int64
 	if err := r.db.Model(&models.Permission{}).Where("code = ?", code).Count(&count).Error; err != nil {
-		r.logger.Error().Err(err).Str("permission_code", code).Msg("Error al verificar existencia de permiso")
+		r.logger.Error().Err(err).Str("code", code).Msg("Error al verificar existencia de permiso por código")
 		return false, err
 	}
 	return count > 0, nil

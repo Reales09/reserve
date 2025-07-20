@@ -6,18 +6,18 @@ import (
 	"fmt"
 	"strings"
 
-	"dbpostgres/db/models"
+	"dbpostgres/internal/infra/models"
 
 	"gorm.io/gorm"
 )
 
 // UserContext contiene la información del usuario autenticado
 type UserContext struct {
-	UserID        uint
-	Email         string
-	RestaurantIDs []uint // Lista de IDs de restaurantes a los que pertenece
-	Roles         []string
-	Permissions   []string
+	UserID      uint
+	Email       string
+	BusinessIDs []uint // Lista de IDs de negocios a los que pertenece
+	Roles       []string
+	Permissions []string
 }
 
 // AuthService maneja la autenticación y autorización
@@ -33,7 +33,7 @@ func NewAuthService(db *gorm.DB) *AuthService {
 // AuthenticateUser autentica un usuario y retorna su contexto
 func (as *AuthService) AuthenticateUser(email, password string) (*UserContext, error) {
 	var user models.User
-	err := as.db.Preload("Roles.Permissions").Preload("Restaurants").Where("email = ? AND is_active = ?", email, true).First(&user).Error
+	err := as.db.Preload("Roles.Permissions").Preload("Businesses").Where("email = ? AND is_active = ?", email, true).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New("usuario no encontrado o inactivo")
@@ -48,16 +48,16 @@ func (as *AuthService) AuthenticateUser(email, password string) (*UserContext, e
 
 	// Construir contexto del usuario
 	userContext := &UserContext{
-		UserID:        user.ID,
-		Email:         user.Email,
-		RestaurantIDs: make([]uint, 0),
-		Roles:         make([]string, 0),
-		Permissions:   make([]string, 0),
+		UserID:      user.ID,
+		Email:       user.Email,
+		BusinessIDs: make([]uint, 0),
+		Roles:       make([]string, 0),
+		Permissions: make([]string, 0),
 	}
 
-	// Extraer IDs de restaurantes
-	for _, restaurant := range user.Restaurants {
-		userContext.RestaurantIDs = append(userContext.RestaurantIDs, restaurant.ID)
+	// Extraer IDs de negocios
+	for _, business := range user.Businesses {
+		userContext.BusinessIDs = append(userContext.BusinessIDs, business.ID)
 	}
 
 	// Extraer roles y permisos
@@ -109,25 +109,26 @@ func (as *AuthService) HasAnyRole(userCtx *UserContext, roleCodes ...string) boo
 
 // IsSuperUser verifica si el usuario es un super usuario
 func (as *AuthService) IsSuperUser(userCtx *UserContext) bool {
-	return as.HasAnyRole(userCtx, models.ROLE_SUPER_ADMIN, models.ROLE_PLATFORM_ADMIN)
+	// Verificar si el usuario tiene rol de super admin o platform admin
+	return as.HasAnyRole(userCtx, "super_admin", "platform_admin")
 }
 
-// IsRestaurantUser verifica si el usuario pertenece a algún restaurante
-func (as *AuthService) IsRestaurantUser(userCtx *UserContext) bool {
-	return len(userCtx.RestaurantIDs) > 0
+// IsBusinessUser verifica si el usuario pertenece a algún negocio
+func (as *AuthService) IsBusinessUser(userCtx *UserContext) bool {
+	return len(userCtx.BusinessIDs) > 0
 }
 
-// CanAccessRestaurant verifica si el usuario puede acceder a un restaurante específico
-func (as *AuthService) CanAccessRestaurant(userCtx *UserContext, restaurantID uint) bool {
-	// Super usuarios pueden acceder a cualquier restaurante
+// CanAccessBusiness verifica si el usuario puede acceder a un negocio específico
+func (as *AuthService) CanAccessBusiness(userCtx *UserContext, businessID uint) bool {
+	// Super usuarios pueden acceder a cualquier negocio
 	if as.IsSuperUser(userCtx) {
 		return true
 	}
 
-	// Usuarios de restaurante solo pueden acceder a sus restaurantes
-	if as.IsRestaurantUser(userCtx) {
-		for _, id := range userCtx.RestaurantIDs {
-			if id == restaurantID {
+	// Usuarios de negocio solo pueden acceder a sus negocios
+	if as.IsBusinessUser(userCtx) {
+		for _, id := range userCtx.BusinessIDs {
+			if id == businessID {
 				return true
 			}
 		}
@@ -136,9 +137,9 @@ func (as *AuthService) CanAccessRestaurant(userCtx *UserContext, restaurantID ui
 	return false
 }
 
-// GetUserRestaurantIDs retorna los IDs de los restaurantes del usuario
-func (as *AuthService) GetUserRestaurantIDs(userCtx *UserContext) []uint {
-	return userCtx.RestaurantIDs
+// GetUserBusinessIDs retorna los IDs de los negocios del usuario
+func (as *AuthService) GetUserBusinessIDs(userCtx *UserContext) []uint {
+	return userCtx.BusinessIDs
 }
 
 // ContextKey es la clave para almacenar el contexto del usuario
@@ -197,11 +198,11 @@ func (as *AuthService) RequireSuperUser() func(*UserContext) error {
 	}
 }
 
-// RequireRestaurantAccess middleware que requiere acceso a un restaurante específico
-func (as *AuthService) RequireRestaurantAccess(restaurantID uint) func(*UserContext) error {
+// RequireBusinessAccess middleware que requiere acceso a un negocio específico
+func (as *AuthService) RequireBusinessAccess(businessID uint) func(*UserContext) error {
 	return func(userCtx *UserContext) error {
-		if !as.CanAccessRestaurant(userCtx, restaurantID) {
-			return fmt.Errorf("sin acceso al restaurante %d", restaurantID)
+		if !as.CanAccessBusiness(userCtx, businessID) {
+			return fmt.Errorf("sin acceso al negocio %d", businessID)
 		}
 		return nil
 	}

@@ -1,20 +1,21 @@
 package repository
 
 import (
-	"dbpostgres/db/models"
+	"dbpostgres/internal/domain"
+	"dbpostgres/internal/infra/models"
 	"dbpostgres/pkg/log"
 
 	"gorm.io/gorm"
 )
 
-// reservationStatusRepository implementa ReservationStatusRepository
+// reservationStatusRepository implementa domain.ReservationStatusRepository
 type reservationStatusRepository struct {
 	db     *gorm.DB
 	logger log.ILogger
 }
 
 // NewReservationStatusRepository crea una nueva instancia del repositorio de estados de reserva
-func NewReservationStatusRepository(db *gorm.DB, logger log.ILogger) ReservationStatusRepository {
+func NewReservationStatusRepository(db *gorm.DB, logger log.ILogger) domain.ReservationStatusRepository {
 	return &reservationStatusRepository{
 		db:     db,
 		logger: logger,
@@ -24,10 +25,9 @@ func NewReservationStatusRepository(db *gorm.DB, logger log.ILogger) Reservation
 // Create crea un nuevo estado de reserva
 func (r *reservationStatusRepository) Create(status *models.ReservationStatus) error {
 	if err := r.db.Create(status).Error; err != nil {
-		r.logger.Error().Err(err).Str("status_code", status.Code).Msg("Error al crear estado de reserva")
+		r.logger.Error().Err(err).Str("code", status.Code).Msg("Error al crear estado de reserva")
 		return err
 	}
-	r.logger.Debug().Str("status_code", status.Code).Msg("Estado de reserva creado exitosamente")
 	return nil
 }
 
@@ -38,7 +38,7 @@ func (r *reservationStatusRepository) GetByCode(code string) (*models.Reservatio
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
-		r.logger.Error().Err(err).Str("status_code", code).Msg("Error al obtener estado de reserva por código")
+		r.logger.Error().Err(err).Str("code", code).Msg("Error al obtener estado de reserva por código")
 		return nil, err
 	}
 	return &status, nil
@@ -54,11 +54,11 @@ func (r *reservationStatusRepository) GetAll() ([]models.ReservationStatus, erro
 	return statuses, nil
 }
 
-// ExistsByCode verifica si existe un estado de reserva por su código
+// ExistsByCode verifica si existe un estado de reserva con el código especificado
 func (r *reservationStatusRepository) ExistsByCode(code string) (bool, error) {
 	var count int64
 	if err := r.db.Model(&models.ReservationStatus{}).Where("code = ?", code).Count(&count).Error; err != nil {
-		r.logger.Error().Err(err).Str("status_code", code).Msg("Error al verificar existencia de estado de reserva")
+		r.logger.Error().Err(err).Str("code", code).Msg("Error al verificar existencia de estado de reserva por código")
 		return false, err
 	}
 	return count > 0, nil
