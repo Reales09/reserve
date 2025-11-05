@@ -197,6 +197,70 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path:
+              '/home/:page/horizontal-properties/:id/voting/:groupId',
+          name: VotingGroupDetailScreen.name,
+          builder: (context, state) {
+            final home = Get.isRegistered<HomeController>()
+                ? Get.find<HomeController>()
+                : null;
+            if (home == null || !home.canAccessHorizontalPropertiesMenu) {
+              return const Scaffold(
+                body: Center(child: Text('No autorizado')),
+              );
+            }
+
+            final page = int.tryParse(state.pathParameters['page'] ?? '0') ?? 0;
+            final propertyId =
+                int.tryParse(state.pathParameters['id'] ?? '');
+            final groupId = int.tryParse(state.pathParameters['groupId'] ?? '');
+            if (propertyId == null || groupId == null) {
+              return const Scaffold(
+                body: Center(child: Text('Parámetros inválidos.')),
+              );
+            }
+
+            return VotingGroupDetailScreen(
+              pageIndex: page,
+              propertyId: propertyId,
+              votingGroupId: groupId,
+            );
+          },
+        ),
+        GoRoute(
+          path:
+              '/home/:page/horizontal-properties/:id/voting/:groupId/votings/:votingId/live',
+          name: LiveVotingScreen.name,
+          builder: (context, state) {
+            final home = Get.isRegistered<HomeController>()
+                ? Get.find<HomeController>()
+                : null;
+            if (home == null || !home.canAccessHorizontalPropertiesMenu) {
+              return const Scaffold(
+                body: Center(child: Text('No autorizado')),
+              );
+            }
+
+            final page = int.tryParse(state.pathParameters['page'] ?? '0') ?? 0;
+            final propertyId =
+                int.tryParse(state.pathParameters['id'] ?? '');
+            final groupId = int.tryParse(state.pathParameters['groupId'] ?? '');
+            final votingId = int.tryParse(state.pathParameters['votingId'] ?? '');
+            if (propertyId == null || groupId == null || votingId == null) {
+              return const Scaffold(
+                body: Center(child: Text('Parámetros inválidos.')),
+              );
+            }
+
+            return LiveVotingScreen(
+              pageIndex: page,
+              propertyId: propertyId,
+              votingGroupId: groupId,
+              votingId: votingId,
+            );
+          },
+        ),
+        GoRoute(
+          path:
               '/home/:page/horizontal-properties/:id/voting/:groupId/attendance',
           name: AttendanceManagementScreen.name,
           builder: (context, state) {

@@ -20,6 +20,7 @@ class HorizontalPropertyVotingController extends GetxController {
   final groups = <HorizontalPropertyVotingGroup>[].obs;
   final isLoading = false.obs;
   final errorMessage = RxnString();
+  final isMutationBusy = false.obs;
 
   int? get firstVotingGroupId =>
       groups.isNotEmpty ? groups.first.id : null;
@@ -48,6 +49,69 @@ class HorizontalPropertyVotingController extends GetxController {
           'No se pudo cargar la información de votaciones de la propiedad.';
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<bool> createVotingGroup({
+    required Map<String, dynamic> data,
+  }) async {
+    isMutationBusy.value = true;
+    try {
+      final result = await repository.createHorizontalPropertyVotingGroup(
+        propertyId: propertyId,
+        data: data,
+      );
+      if (result) {
+        await refresh();
+      }
+      return result;
+    } catch (_) {
+      return false;
+    } finally {
+      isMutationBusy.value = false;
+    }
+  }
+
+  Future<bool> updateVotingGroup({
+    required int groupId,
+    required Map<String, dynamic> data,
+  }) async {
+    isMutationBusy.value = true;
+    try {
+      final result = await repository.updateHorizontalPropertyVotingGroup(
+        propertyId: propertyId,
+        groupId: groupId,
+        data: data,
+      );
+      if (result) {
+        await refresh();
+      }
+      return result;
+    } catch (_) {
+      return false;
+    } finally {
+      isMutationBusy.value = false;
+    }
+  }
+
+  Future<HorizontalPropertyActionResult> deleteVotingGroup(int groupId) async {
+    isMutationBusy.value = true;
+    try {
+      final result = await repository.deleteHorizontalPropertyVotingGroup(
+        propertyId: propertyId,
+        groupId: groupId,
+      );
+      if (result.success) {
+        await refresh();
+      }
+      return result;
+    } catch (_) {
+      return const HorizontalPropertyActionResult(
+        success: false,
+        message: 'No se pudo eliminar el grupo de votación.',
+      );
+    } finally {
+      isMutationBusy.value = false;
     }
   }
 }

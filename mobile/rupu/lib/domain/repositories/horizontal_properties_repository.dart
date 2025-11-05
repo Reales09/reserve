@@ -7,6 +7,7 @@ import 'package:rupu/domain/entities/horizontal_property_unit_detail.dart';
 import 'package:rupu/domain/entities/horizontal_property_units_page.dart';
 import 'package:rupu/domain/entities/horizontal_property_update_result.dart';
 import 'package:rupu/domain/entities/horizontal_property_voting_groups.dart';
+import 'package:rupu/domain/entities/votings_result.dart';
 
 abstract class HorizontalPropertiesRepository {
   Future<HorizontalPropertiesPage> getHorizontalProperties({
@@ -66,5 +67,53 @@ abstract class HorizontalPropertiesRepository {
 
   Future<HorizontalPropertyVotingGroupsResult> getHorizontalPropertyVotingGroups({
     required int id,
+  });
+
+  Future<bool> createHorizontalPropertyVotingGroup({
+    required int propertyId,
+    required Map<String, dynamic> data,
+  });
+
+  Future<bool> updateHorizontalPropertyVotingGroup({
+    required int propertyId,
+    required int groupId,
+    required Map<String, dynamic> data,
+  });
+
+  Future<HorizontalPropertyActionResult> deleteHorizontalPropertyVotingGroup({
+    required int propertyId,
+    required int groupId,
+  });
+
+  Future<VotingOptionsResult> getVotingOptions({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+  });
+
+  Future<bool> createVotingOption({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    required Map<String, dynamic> data,
+  });
+
+  Future<HorizontalPropertyActionResult> deleteVotingOption({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    required int optionId,
+  });
+
+  Stream<LiveVotingResult> getLiveVotingStream({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+  });
+
+  Future<VotingResultsResult> getVotingResults({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
   });
 }

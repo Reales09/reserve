@@ -54,3 +54,7 @@ export 'package:rupu/presentation/views/horizontal_properties/controllers/horizo
 export 'package:rupu/presentation/views/horizontal_properties/controllers/horizontal_property_dashboard_controller.dart';
 export 'package:rupu/presentation/views/horizontal_properties/controllers/attendance_management_controller.dart';
 export 'package:rupu/presentation/views/horizontal_properties/attendance_management_view.dart';
+export 'package:rupu/presentation/views/horizontal_properties/controllers/voting_group_detail_controller.dart';
+export 'package:rupu/presentation/views/horizontal_properties/voting_group_detail_view.dart';
+export 'package:rupu/presentation/views/horizontal_properties/controllers/live_voting_controller.dart';
+export 'package:rupu/presentation/views/horizontal_properties/live_voting_view.dart';

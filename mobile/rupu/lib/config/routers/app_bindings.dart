@@ -11,6 +11,46 @@ class LoginBinding {
   }
 }
 
+class LiveVotingBinding {
+  static void register({
+    required int propertyId,
+    required int votingGroupId,
+    required int votingId,
+  }) {
+    final tag =
+        LiveVotingController.tagFor(propertyId, votingGroupId, votingId);
+    if (!Get.isRegistered<LiveVotingController>(tag: tag)) {
+      Get.put(
+        LiveVotingController(
+          propertyId: propertyId,
+          votingGroupId: votingGroupId,
+          votingId: votingId,
+        ),
+        tag: tag,
+      );
+    }
+  }
+}
+
+class VotingGroupDetailBinding {
+  static void register({
+    required int propertyId,
+    required int votingGroupId,
+  }) {
+    final tag =
+        VotingGroupDetailController.tagFor(propertyId, votingGroupId);
+    if (!Get.isRegistered<VotingGroupDetailController>(tag: tag)) {
+      Get.put(
+        VotingGroupDetailController(
+          propertyId: propertyId,
+          votingGroupId: votingGroupId,
+        ),
+        tag: tag,
+      );
+    }
+  }
+}
+
 class BusinessSelectorBinding {
   static void register() {
     LoginBinding.register();

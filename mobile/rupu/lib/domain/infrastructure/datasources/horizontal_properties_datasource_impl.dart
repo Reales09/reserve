@@ -14,7 +14,9 @@ import 'package:rupu/domain/infrastructure/models/horizontal_property_residents_
 import 'package:rupu/domain/infrastructure/models/horizontal_property_unit_detail_response_model.dart';
 import 'package:rupu/domain/infrastructure/models/horizontal_property_units_response_model.dart';
 import 'package:rupu/domain/infrastructure/models/horizontal_property_voting_groups_response_model.dart';
+import 'package:rupu/domain/infrastructure/models/live_voting_response_model.dart';
 import 'package:rupu/domain/infrastructure/models/simple_response_model.dart';
+import 'package:rupu/domain/infrastructure/models/voting_results_response_model.dart';
 
 class HorizontalPropertiesDatasourceImpl
     extends HorizontalPropertiesDatasource {
@@ -396,6 +398,142 @@ class HorizontalPropertiesDatasourceImpl
       queryParameters: query,
     );
     return HorizontalPropertyVotingGroupsResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<SimpleResponseModel> createHorizontalPropertyVotingGroup({
+    required int propertyId,
+    required Map<String, dynamic> data,
+    Map<String, dynamic>? query,
+  }) async {
+    final response = await _dio.post(
+      '/horizontal-properties/voting-groups',
+      data: data,
+      queryParameters: query,
+    );
+    return SimpleResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<SimpleResponseModel> updateHorizontalPropertyVotingGroup({
+    required int propertyId,
+    required int groupId,
+    required Map<String, dynamic> data,
+    Map<String, dynamic>? query,
+  }) async {
+    final response = await _dio.put(
+      '/horizontal-properties/voting-groups/$groupId',
+      data: data,
+      queryParameters: query,
+    );
+    return SimpleResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<SimpleResponseModel> deleteHorizontalPropertyVotingGroup({
+    required int propertyId,
+    required int groupId,
+    Map<String, dynamic>? query,
+  }) async {
+    final response = await _dio.delete(
+      '/horizontal-properties/voting-groups/$groupId',
+      queryParameters: query,
+    );
+    return SimpleResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<VotingOptionsResponseModel> getVotingOptions({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    Map<String, dynamic>? query,
+  }) async {
+    final response = await _dio.get(
+      '/horizontal-properties/voting-groups/$groupId/votings/$votingId/options',
+      queryParameters: query,
+    );
+    return VotingOptionsResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<SimpleResponseModel> createVotingOption({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    required Map<String, dynamic> data,
+    Map<String, dynamic>? query,
+  }) async {
+    final response = await _dio.post(
+      '/horizontal-properties/voting-groups/$groupId/votings/$votingId/options',
+      data: data,
+      queryParameters: query,
+    );
+    return SimpleResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<SimpleResponseModel> deleteVotingOption({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    required int optionId,
+    Map<String, dynamic>? query,
+  }) async {
+    final response = await _dio.delete(
+      '/horizontal-properties/voting-groups/$groupId/votings/$votingId/options/$optionId',
+      queryParameters: query,
+    );
+    return SimpleResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Stream<LiveVotingResponseModel> getLiveVotingStream({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    Map<String, dynamic>? query,
+  }) {
+    final response = _dio.get(
+      '/horizontal-properties/voting-groups/$groupId/votings/$votingId/stream',
+      queryParameters: query,
+      options: Options(
+        responseType: ResponseType.stream,
+      ),
+    );
+    return response.asStream().map((event) {
+      return LiveVotingResponseModel.fromJson(
+        event.data as Map<String, dynamic>,
+      );
+    });
+  }
+
+  @override
+  Future<VotingResultsResponseModel> getVotingResults({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    Map<String, dynamic>? query,
+  }) async {
+    final response = await _dio.get(
+      '/horizontal-properties/voting-groups/$groupId/votings/$votingId/votes',
+      queryParameters: query,
+    );
+    return VotingResultsResponseModel.fromJson(
       response.data as Map<String, dynamic>,
     );
   }

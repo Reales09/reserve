@@ -10,7 +10,9 @@ import 'package:rupu/domain/entities/horizontal_property_units_page.dart';
 import 'package:rupu/domain/entities/horizontal_property_update_result.dart';
 import 'package:rupu/domain/entities/horizontal_property_voting_groups.dart';
 import 'package:rupu/domain/infrastructure/datasources/horizontal_properties_datasource_impl.dart';
+import 'package:rupu/domain/entities/voting_results_result.dart';
 import 'package:rupu/domain/infrastructure/mappers/horizontal_properties_mapper.dart';
+import 'package:rupu/domain/infrastructure/mappers/voting_result_mapper.dart';
 import 'package:rupu/domain/repositories/horizontal_properties_repository.dart';
 import 'package:rupu/presentation/views/login/login_controller.dart';
 
@@ -117,6 +119,115 @@ class HorizontalPropertiesRepositoryImpl
   }
 
   @override
+  Stream<LiveVotingResult> getLiveVotingStream({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+  }) {
+    return datasource
+        .getLiveVotingStream(
+      propertyId: propertyId,
+      groupId: groupId,
+      votingId: votingId,
+      query: _withBusinessQuery(),
+    )
+        .map((response) {
+      return LiveVotingMapper.fromJson(response.data);
+    });
+  }
+
+  @override
+  Future<VotingResultsResult> getVotingResults({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+  }) async {
+    try {
+      final response = await datasource.getVotingResults(
+        propertyId: propertyId,
+        groupId: groupId,
+        votingId: votingId,
+        query: _withBusinessQuery(),
+      );
+      return VotingResultMapper.fromJson(response.data);
+    } catch (_) {
+      return const VotingResultsResult(
+        success: false,
+        message: 'No se pudieron cargar los resultados de la votación.',
+        data: [],
+      );
+    }
+  }
+
+  @override
+  Future<VotingOptionsResult> getVotingOptions({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+  }) async {
+    try {
+      final response = await datasource.getVotingOptions(
+        propertyId: propertyId,
+        groupId: groupId,
+        votingId: votingId,
+        query: _withBusinessQuery(),
+      );
+      return VotingOptionMapper.fromJson(response.data);
+    } catch (_) {
+      return const VotingOptionsResult(
+        success: false,
+        message: 'No se pudieron cargar las opciones de votación.',
+        data: [],
+      );
+    }
+  }
+
+  @override
+  Future<bool> createVotingOption({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      await datasource.createVotingOption(
+        propertyId: propertyId,
+        groupId: groupId,
+        votingId: votingId,
+        data: data,
+        query: _withBusinessQuery(),
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Future<HorizontalPropertyActionResult> deleteVotingOption({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    required int optionId,
+  }) async {
+    try {
+      final response = await datasource.deleteVotingOption(
+        propertyId: propertyId,
+        groupId: groupId,
+        votingId: votingId,
+        optionId: optionId,
+        query: _withBusinessQuery(),
+      );
+      return HorizontalPropertiesMapper.simpleResponseToActionResult(response);
+    } catch (_) {
+      return const HorizontalPropertyActionResult(
+        success: false,
+        message: 'No se pudo eliminar la opción de votación.',
+      );
+    }
+  }
+
+  @override
   Future<HorizontalPropertyUnitDetailResult> createHorizontalPropertyUnit({
     required int propertyId,
     required Map<String, dynamic> data,
@@ -202,6 +313,62 @@ class HorizontalPropertiesRepositoryImpl
       query: _withBusinessQuery({'business_id': id}),
     );
     return HorizontalPropertiesMapper.votingGroupsResponseToEntity(response);
+  }
+
+  @override
+  Future<bool> createHorizontalPropertyVotingGroup({
+    required int propertyId,
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      await datasource.createHorizontalPropertyVotingGroup(
+        propertyId: propertyId,
+        data: data,
+        query: _withBusinessQuery(),
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> updateHorizontalPropertyVotingGroup({
+    required int propertyId,
+    required int groupId,
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      await datasource.updateHorizontalPropertyVotingGroup(
+        propertyId: propertyId,
+        groupId: groupId,
+        data: data,
+        query: _withBusinessQuery(),
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Future<HorizontalPropertyActionResult> deleteHorizontalPropertyVotingGroup({
+    required int propertyId,
+    required int groupId,
+  }) async {
+    try {
+      final response = await datasource.deleteHorizontalPropertyVotingGroup(
+        propertyId: propertyId,
+        groupId: groupId,
+        query: _withBusinessQuery(),
+      );
+      return HorizontalPropertiesMapper.simpleResponseToActionResult(response);
+    } catch (_) {
+      return const HorizontalPropertyActionResult(
+        success: false,
+        message: 'No se pudo eliminar el grupo de votación.',
+      );
+    }
   }
 
   Map<String, dynamic>? _withBusinessQuery([Map<String, dynamic>? query]) {

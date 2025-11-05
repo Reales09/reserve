@@ -590,53 +590,21 @@ class _UnitCard extends StatelessWidget {
     final controller = Get.find<HorizontalPropertyUnitsController>(
       tag: controllerTag,
     );
-    Get.dialog(
-      const Center(child: CircularProgressIndicator()),
-      barrierDismissible: false,
-    );
-    HorizontalPropertyUnitDetailResult? detailResult;
-    try {
-      detailResult = await controller.fetchUnitDetail(unit.id);
-    } catch (_) {
-      detailResult = const HorizontalPropertyUnitDetailResult(
-        success: false,
-        message:
-            'No se pudo cargar el detalle de la unidad. Inténtalo nuevamente.',
-      );
-    } finally {
-      if (Get.isDialogOpen ?? false) {
-        Get.back();
-      }
-    }
-
-    final resolvedDetail = detailResult;
-    if (resolvedDetail == null ||
-        !resolvedDetail.success ||
-        resolvedDetail.unit == null) {
-      _showSnack(
-        'No se pudo cargar la unidad',
-        resolvedDetail?.message ?? 'Inténtalo nuevamente en unos segundos.',
-        isError: true,
-      );
-      return;
-    }
-
     final result =
         await showModalBottomSheet<HorizontalPropertyUnitDetailResult>(
-          context: context,
-          backgroundColor: Colors.transparent,
-          useRootNavigator: true,
-          isScrollControlled: true,
-          builder: (_) => _UnitFormBottomSheet(
-            title: 'Editar unidad',
-            actionLabel: 'Guardar cambios',
-            initialDetail: resolvedDetail.unit,
-            fallback: unit,
-            showStatusSwitch: true,
-            onSubmit: (payload) =>
-                controller.updateUnit(unitId: unit.id, data: payload),
-          ),
-        );
+      context: context,
+      backgroundColor: Colors.transparent,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      builder: (_) => _UnitFormBottomSheet(
+        title: 'Editar unidad',
+        actionLabel: 'Guardar cambios',
+        fallback: unit,
+        showStatusSwitch: true,
+        onSubmit: (payload) =>
+            controller.updateUnit(unitId: unit.id, data: payload),
+      ),
+    );
 
     if (result != null && result.success) {
       final updatedNumber = result.unit?.number ?? unit.number;

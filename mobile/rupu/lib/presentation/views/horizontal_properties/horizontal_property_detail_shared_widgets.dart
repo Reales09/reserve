@@ -798,6 +798,8 @@ class _CardActions extends StatelessWidget {
   final VoidCallback? onView;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onMore;
+  final VoidCallback? onLive;
   final bool isEditDisabled;
   final bool isDeleteDisabled;
   final bool showDeleteLoader;
@@ -805,6 +807,8 @@ class _CardActions extends StatelessWidget {
     this.onView,
     this.onEdit,
     this.onDelete,
+    this.onMore,
+    this.onLive,
     this.isEditDisabled = false,
     this.isDeleteDisabled = false,
     this.showDeleteLoader = false,
@@ -873,6 +877,18 @@ class _CardActions extends StatelessWidget {
               : const Icon(Icons.delete_outline, size: 18),
           label: Text(showDeleteLoader ? 'Eliminando...' : 'Eliminar'),
         ),
+        if (onMore != null)
+          IconButton(
+            onPressed: onMore,
+            icon: const Icon(Icons.more_vert),
+          ),
+        if (onLive != null)
+          FilledButton.icon(
+            style: _primaryStyle(context),
+            onPressed: onLive,
+            icon: const Icon(Icons.live_tv, size: 18),
+            label: const Text('Votación en vivo'),
+          ),
       ],
     );
   }

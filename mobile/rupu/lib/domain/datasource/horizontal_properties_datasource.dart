@@ -75,4 +75,60 @@ abstract class HorizontalPropertiesDatasource {
     required int id,
     Map<String, dynamic>? query,
   });
+
+  Future<SimpleResponseModel> createHorizontalPropertyVotingGroup({
+    required int propertyId,
+    required Map<String, dynamic> data,
+    Map<String, dynamic>? query,
+  });
+
+  Future<SimpleResponseModel> updateHorizontalPropertyVotingGroup({
+    required int propertyId,
+    required int groupId,
+    required Map<String, dynamic> data,
+    Map<String, dynamic>? query,
+  });
+
+  Future<SimpleResponseModel> deleteHorizontalPropertyVotingGroup({
+    required int propertyId,
+    required int groupId,
+    Map<String, dynamic>? query,
+  });
+
+  Future<VotingOptionsResponseModel> getVotingOptions({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    Map<String, dynamic>? query,
+  });
+
+  Future<SimpleResponseModel> createVotingOption({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    required Map<String, dynamic> data,
+    Map<String, dynamic>? query,
+  });
+
+  Future<SimpleResponseModel> deleteVotingOption({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    required int optionId,
+    Map<String, dynamic>? query,
+  });
+
+  Stream<LiveVotingResponseModel> getLiveVotingStream({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    Map<String, dynamic>? query,
+  });
+
+  Future<VotingResultsResponseModel> getVotingResults({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    Map<String, dynamic>? query,
+  });
 }
