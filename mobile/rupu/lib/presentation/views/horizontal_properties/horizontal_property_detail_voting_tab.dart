@@ -101,7 +101,17 @@ class _VotingGroupCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        onTap: onOpenAttendance,
+        onTap: () {
+          final state = GoRouterState.of(context);
+          final segments = state.uri.pathSegments;
+          final page = segments.length > 1 ? segments[1] : '0';
+          final propertyId = Get.find<HorizontalPropertyVotingController>(
+                  tag: controllerTag)
+              .propertyId;
+          final path =
+              '/home/$page/horizontal-properties/$propertyId/voting/${group.id}';
+          context.push(path);
+        },
         child: Ink(
           decoration: BoxDecoration(
             color: cs.surface,
@@ -188,8 +198,8 @@ class _VotingGroupCard extends StatelessWidget {
                 const SizedBox(height: 16),
                 _CardActions(
                   onView: onOpenAttendance,
-                  onEdit: () => _openEditSheet(context, group),
-                  onDelete: () => _confirmDelete(context, group),
+                  onEdit: () => _openEditSheet(context, group, controllerTag),
+                  onDelete: () => _confirmDelete(context, group, controllerTag),
                 ),
               ],
             ),
@@ -208,8 +218,9 @@ class _VotingGroupCard extends StatelessWidget {
   }
 }
 
-Future<void> _openCreateSheet(BuildContext context) async {
-  final controller = Get.find<HorizontalPropertyVotingController>();
+Future<void> _openCreateSheet(BuildContext context, String controllerTag) async {
+  final controller =
+      Get.find<HorizontalPropertyVotingController>(tag: controllerTag);
   final result = await showModalBottomSheet<bool>(
     context: context,
     backgroundColor: Colors.transparent,
@@ -227,9 +238,10 @@ Future<void> _openCreateSheet(BuildContext context) async {
   }
 }
 
-Future<void> _openEditSheet(
-    BuildContext context, HorizontalPropertyVotingGroup group) async {
-  final controller = Get.find<HorizontalPropertyVotingController>();
+Future<void> _openEditSheet(BuildContext context,
+    HorizontalPropertyVotingGroup group, String controllerTag) async {
+  final controller =
+      Get.find<HorizontalPropertyVotingController>(tag: controllerTag);
   final result = await showModalBottomSheet<bool>(
     context: context,
     backgroundColor: Colors.transparent,
@@ -250,8 +262,8 @@ Future<void> _openEditSheet(
   }
 }
 
-Future<void> _confirmDelete(
-    BuildContext context, HorizontalPropertyVotingGroup group) async {
+Future<void> _confirmDelete(BuildContext context,
+    HorizontalPropertyVotingGroup group, String controllerTag) async {
   final cs = Theme.of(context).colorScheme;
   final confirmed = await showDialog<bool>(
     context: context,
@@ -701,7 +713,8 @@ class _AddVotingGroupFab
           elevation: 0,
           backgroundColor: Colors.transparent,
           foregroundColor: cs.onPrimary,
-          onPressed: isBusy ? null : () => _openCreateSheet(context),
+          onPressed:
+              isBusy ? null : () => _openCreateSheet(context, controllerTag),
           icon: isBusy ? null : const Icon(Icons.add, size: 24),
           label: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 6),

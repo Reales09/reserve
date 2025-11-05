@@ -23,6 +23,7 @@ class HorizontalPropertyVotingGroup {
   final int? createdByUserId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String? notes;
 
   const HorizontalPropertyVotingGroup({
     required this.id,
@@ -37,5 +38,6 @@ class HorizontalPropertyVotingGroup {
     this.createdByUserId,
     this.createdAt,
     this.updatedAt,
+    this.notes,
   });
 }

@@ -131,4 +131,24 @@ abstract class HorizontalPropertiesDatasource {
     required int votingId,
     Map<String, dynamic>? query,
   });
+
+  Future<VotingsResponseModel> getVotings({
+    required int propertyId,
+    required int groupId,
+    Map<String, dynamic>? query,
+  });
+
+  Future<SimpleResponseModel> activateVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    Map<String, dynamic>? query,
+  });
+
+  Future<SimpleResponseModel> deactivateVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    Map<String, dynamic>? query,
+  });
 }

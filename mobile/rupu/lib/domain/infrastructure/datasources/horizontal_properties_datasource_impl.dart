@@ -17,6 +17,7 @@ import 'package:rupu/domain/infrastructure/models/horizontal_property_voting_gro
 import 'package:rupu/domain/infrastructure/models/live_voting_response_model.dart';
 import 'package:rupu/domain/infrastructure/models/simple_response_model.dart';
 import 'package:rupu/domain/infrastructure/models/voting_results_response_model.dart';
+import 'package:rupu/domain/infrastructure/models/votings_response_model.dart';
 
 class HorizontalPropertiesDatasourceImpl
     extends HorizontalPropertiesDatasource {
@@ -534,6 +535,53 @@ class HorizontalPropertiesDatasourceImpl
       queryParameters: query,
     );
     return VotingResultsResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<VotingsResponseModel> getVotings({
+    required int propertyId,
+    required int groupId,
+    Map<String, dynamic>? query,
+  }) async {
+    final response = await _dio.get(
+      '/horizontal-properties/voting-groups/$groupId/votings',
+      queryParameters: query,
+    );
+    return VotingsResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<SimpleResponseModel> activateVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    Map<String, dynamic>? query,
+  }) async {
+    final response = await _dio.patch(
+      '/horizontal-properties/voting-groups/$groupId/votings/$votingId/activate',
+      queryParameters: query,
+    );
+    return SimpleResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<SimpleResponseModel> deactivateVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    Map<String, dynamic>? query,
+  }) async {
+    final response = await _dio.patch(
+      '/horizontal-properties/voting-groups/$groupId/votings/$votingId/deactivate',
+      queryParameters: query,
+    );
+    return SimpleResponseModel.fromJson(
       response.data as Map<String, dynamic>,
     );
   }

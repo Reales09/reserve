@@ -241,6 +241,7 @@ class HorizontalPropertiesMapper {
       createdByUserId: model.createdByUserId,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
+      notes: model.notes,
     );
   }
 

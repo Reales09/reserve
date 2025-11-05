@@ -11,8 +11,10 @@ import 'package:rupu/domain/entities/horizontal_property_update_result.dart';
 import 'package:rupu/domain/entities/horizontal_property_voting_groups.dart';
 import 'package:rupu/domain/infrastructure/datasources/horizontal_properties_datasource_impl.dart';
 import 'package:rupu/domain/entities/voting_results_result.dart';
+import 'package:rupu/domain/entities/votings_result.dart';
 import 'package:rupu/domain/infrastructure/mappers/horizontal_properties_mapper.dart';
 import 'package:rupu/domain/infrastructure/mappers/voting_result_mapper.dart';
+import 'package:rupu/domain/infrastructure/mappers/voting_mapper.dart';
 import 'package:rupu/domain/repositories/horizontal_properties_repository.dart';
 import 'package:rupu/presentation/views/login/login_controller.dart';
 
@@ -401,5 +403,70 @@ class HorizontalPropertiesRepositoryImpl
 
     baseQuery['business_id'] = businessId;
     return baseQuery;
+  }
+
+  @override
+  Future<VotingsResult> getVotings({
+    required int propertyId,
+    required int groupId,
+  }) async {
+    try {
+      final response = await datasource.getVotings(
+        propertyId: propertyId,
+        groupId: groupId,
+        query: _withBusinessQuery(),
+      );
+      return VotingMapper.fromJson(response.data);
+    } catch (_) {
+      return const VotingsResult(
+        success: false,
+        message: 'No se pudieron cargar las votaciones.',
+        data: [],
+      );
+    }
+  }
+
+  @override
+  Future<HorizontalPropertyActionResult> activateVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+  }) async {
+    try {
+      final response = await datasource.activateVoting(
+        propertyId: propertyId,
+        groupId: groupId,
+        votingId: votingId,
+        query: _withBusinessQuery(),
+      );
+      return HorizontalPropertiesMapper.simpleResponseToActionResult(response);
+    } catch (_) {
+      return const HorizontalPropertyActionResult(
+        success: false,
+        message: 'No se pudo activar la votación.',
+      );
+    }
+  }
+
+  @override
+  Future<HorizontalPropertyActionResult> deactivateVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+  }) async {
+    try {
+      final response = await datasource.deactivateVoting(
+        propertyId: propertyId,
+        groupId: groupId,
+        votingId: votingId,
+        query: _withBusinessQuery(),
+      );
+      return HorizontalPropertiesMapper.simpleResponseToActionResult(response);
+    } catch (_) {
+      return const HorizontalPropertyActionResult(
+        success: false,
+        message: 'No se pudo desactivar la votación.',
+      );
+    }
   }
 }

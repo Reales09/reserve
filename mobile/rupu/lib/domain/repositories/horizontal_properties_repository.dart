@@ -116,4 +116,21 @@ abstract class HorizontalPropertiesRepository {
     required int groupId,
     required int votingId,
   });
+
+  Future<VotingsResult> getVotings({
+    required int propertyId,
+    required int groupId,
+  });
+
+  Future<HorizontalPropertyActionResult> activateVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+  });
+
+  Future<HorizontalPropertyActionResult> deactivateVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+  });
 }

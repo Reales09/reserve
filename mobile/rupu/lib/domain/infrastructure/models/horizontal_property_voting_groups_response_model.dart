@@ -44,6 +44,7 @@ class HorizontalPropertyVotingGroupModel {
   final int? createdByUserId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String? notes;
 
   HorizontalPropertyVotingGroupModel({
     required this.id,
@@ -58,6 +59,7 @@ class HorizontalPropertyVotingGroupModel {
     required this.createdByUserId,
     required this.createdAt,
     required this.updatedAt,
+    required this.notes,
   });
 
   factory HorizontalPropertyVotingGroupModel.fromJson(
@@ -76,6 +78,7 @@ class HorizontalPropertyVotingGroupModel {
       createdByUserId: json['created_by_user_id'] as int?,
       createdAt: _tryParseDate(json['created_at'] as String?),
       updatedAt: _tryParseDate(json['updated_at'] as String?),
+      notes: json['notes'] as String?,
     );
   }
 }
