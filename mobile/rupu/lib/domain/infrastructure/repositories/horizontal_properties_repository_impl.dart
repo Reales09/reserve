@@ -469,4 +469,47 @@ class HorizontalPropertiesRepositoryImpl
       );
     }
   }
+
+  @override
+  Future<bool> updateVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      await datasource.updateVoting(
+        propertyId: propertyId,
+        groupId: groupId,
+        votingId: votingId,
+        data: data,
+        query: _withBusinessQuery(),
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Future<HorizontalPropertyActionResult> deleteVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+  }) async {
+    try {
+      final response = await datasource.deleteVoting(
+        propertyId: propertyId,
+        groupId: groupId,
+        votingId: votingId,
+        query: _withBusinessQuery(),
+      );
+      return HorizontalPropertiesMapper.simpleResponseToActionResult(response);
+    } catch (_) {
+      return const HorizontalPropertyActionResult(
+        success: false,
+        message: 'No se pudo eliminar la votación.',
+      );
+    }
+  }
 }

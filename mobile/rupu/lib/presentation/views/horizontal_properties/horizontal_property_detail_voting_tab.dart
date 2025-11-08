@@ -1,3 +1,6 @@
+import 'package:go_router/go_router.dart';
+import 'package:rupu/presentation/widgets/shared/card_actions.dart';
+
 part of 'horizontal_property_detail_view.dart';
 
 class _VotingTab extends GetWidget<HorizontalPropertyVotingController> {
@@ -196,7 +199,7 @@ class _VotingGroupCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                _CardActions(
+                CardActions(
                   onView: onOpenAttendance,
                   onEdit: () => _openEditSheet(context, group, controllerTag),
                   onDelete: () => _confirmDelete(context, group, controllerTag),

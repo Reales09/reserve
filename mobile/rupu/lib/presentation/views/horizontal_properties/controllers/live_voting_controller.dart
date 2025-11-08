@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:rupu/domain/entities/live_voting_result.dart';
 import 'package:rupu/domain/repositories/horizontal_properties_repository.dart';
@@ -20,6 +22,7 @@ class LiveVotingController extends GetxController {
       'live-voting-$propertyId-$votingGroupId-$votingId';
 
   final liveVotingResult = Rxn<LiveVotingResult>();
+  final units = <LiveVotingUnit>[].obs;
   final isLoading = false.obs;
   final errorMessage = RxnString();
 
@@ -29,15 +32,30 @@ class LiveVotingController extends GetxController {
     refresh();
   }
 
+  late StreamSubscription<LiveVotingResult> _subscription;
+
   Future<void> refresh() async {
     isLoading.value = true;
     errorMessage.value = null;
-    try {
-      // TODO: Fetch live voting data
-    } catch (_) {
-      errorMessage.value = 'No se pudo cargar la información de la votación en vivo.';
-    } finally {
+    _subscription = repository
+        .getLiveVotingStream(
+      propertyId: propertyId,
+      groupId: votingGroupId,
+      votingId: votingId,
+    )
+        .listen((result) {
+      liveVotingResult.value = result;
+      units.assignAll(result.units);
       isLoading.value = false;
-    }
+    }, onError: (error) {
+      errorMessage.value = 'No se pudo cargar la información de la votación en vivo.';
+      isLoading.value = false;
+    });
+  }
+
+  @override
+  void onClose() {
+    _subscription.cancel();
+    super.onClose();
   }
 }

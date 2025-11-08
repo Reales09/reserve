@@ -75,4 +75,37 @@ class VotingGroupDetailController extends GetxController {
       // Handle error
     }
   }
+
+  Future<bool> updateVoting({
+    required int votingId,
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      final result = await repository.updateVoting(
+        propertyId: propertyId,
+        groupId: votingGroupId,
+        votingId: votingId,
+        data: data,
+      );
+      if (result) {
+        await refresh();
+      }
+      return result;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> deleteVoting(int votingId) async {
+    try {
+      await repository.deleteVoting(
+        propertyId: propertyId,
+        groupId: votingGroupId,
+        votingId: votingId,
+      );
+      await refresh();
+    } catch (_) {
+      // Handle error
+    }
+  }
 }

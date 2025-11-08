@@ -133,4 +133,17 @@ abstract class HorizontalPropertiesRepository {
     required int groupId,
     required int votingId,
   });
+
+  Future<bool> updateVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    required Map<String, dynamic> data,
+  });
+
+  Future<HorizontalPropertyActionResult> deleteVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+  });
 }

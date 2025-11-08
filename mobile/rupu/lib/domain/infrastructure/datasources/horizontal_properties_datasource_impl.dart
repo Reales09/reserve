@@ -585,6 +585,40 @@ class HorizontalPropertiesDatasourceImpl
       response.data as Map<String, dynamic>,
     );
   }
+
+  @override
+  Future<SimpleResponseModel> updateVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    required Map<String, dynamic> data,
+    Map<String, dynamic>? query,
+  }) async {
+    final response = await _dio.put(
+      '/horizontal-properties/voting-groups/$groupId/votings/$votingId',
+      data: data,
+      queryParameters: query,
+    );
+    return SimpleResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<SimpleResponseModel> deleteVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    Map<String, dynamic>? query,
+  }) async {
+    final response = await _dio.delete(
+      '/horizontal-properties/voting-groups/$groupId/votings/$votingId',
+      queryParameters: query,
+    );
+    return SimpleResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
 }
 
 class _EnsuredImage {

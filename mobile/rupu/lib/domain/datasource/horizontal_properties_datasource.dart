@@ -151,4 +151,19 @@ abstract class HorizontalPropertiesDatasource {
     required int votingId,
     Map<String, dynamic>? query,
   });
+
+  Future<SimpleResponseModel> updateVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    required Map<String, dynamic> data,
+    Map<String, dynamic>? query,
+  });
+
+  Future<SimpleResponseModel> deleteVoting({
+    required int propertyId,
+    required int groupId,
+    required int votingId,
+    Map<String, dynamic>? query,
+  });
 }

@@ -1,3 +1,6 @@
+import 'package:go_router/go_router.dart';
+import 'package:rupu/presentation/widgets/shared/card_actions.dart';
+
 part of 'horizontal_property_detail_view.dart';
 
 class _UnitsTab extends GetWidget<HorizontalPropertyUnitsController> {
@@ -556,7 +559,7 @@ class _UnitCard extends StatelessWidget {
                     unit.id,
                   );
                   final disableEdition = unitsController.unitMutationBusy.value;
-                  return _CardActions(
+                  return CardActions(
                     onView: () => _openDetailSheet(context),
                     onEdit: disableEdition
                         ? null

@@ -21,8 +21,34 @@ class LiveVotingView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Votación en vivo'),
       ),
-      body: const Center(
-        child: Text('Live Voting View'),
+      body: Obx(
+        () {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (controller.errorMessage.value != null) {
+            return Center(child: Text(controller.errorMessage.value!));
+          }
+          return GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+            ),
+            itemCount: controller.units.length,
+            itemBuilder: (context, index) {
+              final unit = controller.units[index];
+              return Card(
+                color: unit.hasVoted ? Colors.green : Colors.white,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(unit.propertyUnitNumber),
+                    Text(unit.residentName ?? 'Sin residente'),
+                  ],
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
