@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -508,19 +509,16 @@ class HorizontalPropertiesDatasourceImpl
     required int groupId,
     required int votingId,
     Map<String, dynamic>? query,
-  }) {
-    final response = _dio.get(
-      '/horizontal-properties/voting-groups/$groupId/votings/$votingId/stream',
-      queryParameters: query,
-      options: Options(
-        responseType: ResponseType.stream,
-      ),
-    );
-    return response.asStream().map((event) {
-      return LiveVotingResponseModel.fromJson(
-        event.data as Map<String, dynamic>,
+  }) async* {
+    final client = HttpClient();
+    final request = await client.getUrl(Uri.parse(
+        'https://www.xn--rup-joa.com/api/v1/horizontal-properties/voting-groups/$groupId/votings/$votingId/stream'));
+    final response = await request.close();
+    await for (var event in response.transform(utf8.decoder)) {
+      yield LiveVotingResponseModel.fromJson(
+        jsonDecode(event) as Map<String, dynamic>,
       );
-    });
+    }
   }
 
   @override

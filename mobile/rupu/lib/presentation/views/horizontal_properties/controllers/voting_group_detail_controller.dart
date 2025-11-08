@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:get/get.dart';
 import 'package:rupu/domain/entities/horizontal_property_voting_groups.dart';
 import 'package:rupu/domain/entities/voting.dart';
+import 'package:rupu/domain/entities/voting_option.dart';
 import 'package:rupu/domain/repositories/horizontal_properties_repository.dart';
 import 'package:rupu/domain/infrastructure/repositories/horizontal_properties_repository_impl.dart';
 
@@ -21,6 +22,7 @@ class VotingGroupDetailController extends GetxController {
 
   final group = Rxn<HorizontalPropertyVotingGroup>();
   final votings = <Voting>[].obs;
+  final options = <VotingOption>[].obs;
   final isLoading = false.obs;
   final errorMessage = RxnString();
 
@@ -104,6 +106,58 @@ class VotingGroupDetailController extends GetxController {
         votingId: votingId,
       );
       await refresh();
+    } catch (_) {
+      // Handle error
+    }
+  }
+
+  Future<void> getVotingOptions(int votingId) async {
+    try {
+      final result = await repository.getVotingOptions(
+        propertyId: propertyId,
+        groupId: votingGroupId,
+        votingId: votingId,
+      );
+      if (result.success) {
+        options.assignAll(result.data);
+      }
+    } catch (_) {
+      // Handle error
+    }
+  }
+
+  Future<bool> createVotingOption({
+    required int votingId,
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      final result = await repository.createVotingOption(
+        propertyId: propertyId,
+        groupId: votingGroupId,
+        votingId: votingId,
+        data: data,
+      );
+      if (result) {
+        await getVotingOptions(votingId);
+      }
+      return result;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> deleteVotingOption({
+    required int votingId,
+    required int optionId,
+  }) async {
+    try {
+      await repository.deleteVotingOption(
+        propertyId: propertyId,
+        groupId: votingGroupId,
+        votingId: votingId,
+        optionId: optionId,
+      );
+      await getVotingOptions(votingId);
     } catch (_) {
       // Handle error
     }
